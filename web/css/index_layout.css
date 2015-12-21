@@ -1,0 +1,160 @@
+body, div, dl, dt, dd, ul, ol, li, h1, h2, h3, h4, h5, h6, pre, form, fieldset, input, textarea, p, blockquote, th, td {
+    margin:0;
+    padding:0;
+}
+table {
+    border-collapse:collapse;
+    border-spacing:0;
+}
+fieldset, img {
+    border:0;
+}
+address, caption, cite, code, dfn, em, strong, th, var {
+    font-style:normal;
+    font-weight:normal;
+}
+ol, ul, li {
+    list-style:none;
+}
+caption, th {
+    text-align:left;
+}
+h1, h2, h3, h4, h5, h6 {
+    font-size:100%;
+    font-weight:normal;
+}
+
+abbr, acronym {
+    border:0;
+}
+* {
+    margin:0;
+    padding:0
+}
+
+.navbar{
+    margin-bottom: 0;
+    border-radius: 0;
+    box-shadow:0 0 8px #000;
+    z-index: 1000;
+}
+
+#main-panel{
+    width: 100%;
+}
+
+.container-fluid{
+    padding-right: 0;
+    padding-left: 0;
+    margin-right: 0;
+    margin-left: 0;
+}
+
+#lr-bar{
+    background: #eee;
+    padding-top: 20px;
+    padding-left: 0;
+    padding-right: 0;
+    z-index: 100;
+}
+
+#lr-bar li{
+    display: block;
+    padding-left:28px;
+    margin: 0 0px 4px 0;
+    line-height: 30px;
+    font-weight: bold;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+#lr-bar li.selected{
+    background: #ddd;
+    box-shadow:inset  1px 1px 1px 1px #aaa;
+}
+
+#lr-bar li.divider{
+    height: 0px;
+    line-height: 0;
+    border-top: 1px solid #DCE1E6;
+    border-bottom: 1px solid #F7F9FB;
+    overflow: hidden;
+    margin: 5px auto;
+}
+
+#lr-bar li:hover{
+    background: #ddd;
+    box-shadow:inset  1px 1px 1px 1px #aaa;
+}
+
+#lr-bar li span.selected{
+   color: #0088e4;
+}
+
+#content-panel{
+    margin: 0;
+    padding: 0;
+    z-index: 200;
+    box-shadow:0 0 4px #aaa;
+    border: 1px solid #999;
+}
+
+#tool-bar{
+    padding-left: 28px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    background: #e7e7e7;
+    margin: 0;
+    border-bottom: 1px solid #999;
+}
+
+#tool-bar-left{
+    float: right;
+    margin-right: 18px;
+}
+
+#location{
+    margin: 0;
+    padding-left: 28px;
+    padding-top: 8px;
+}
+
+#file-panel{
+    margin: 0;
+    padding-left: 28px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+}
+
+#list-header{
+    border: 1px solid #ccc;
+    background: #eee;
+}
+
+#header-file-name{
+    width: 60%;
+}
+
+#list-header td{
+    border-right: 1px solid #ccc;
+}
+
+#file-table  tr{
+    border-bottom: 1px solid #ccc;
+}
+
+#file-table  tr.selected{
+    background: rgb(242,247,255);
+}
+
+#file-table tr:hover{
+    background: rgb(240,248,253);
+}
+
+.td-btns{
+    float: right;
+}
+
+.td-btns > a{
+    cursor: pointer;
+}

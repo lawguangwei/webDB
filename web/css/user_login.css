@@ -1,0 +1,49 @@
+body{
+    background: #e7e7e7;
+}
+#logo{
+    width: 150px;
+    margin-left: 60px;
+    margin-top: 40px;
+}
+#logo-web{
+    width: 50%;
+    float: left;
+    border: 3px solid #5bc0de;
+    text-align: center;
+    line-height: 30px;
+    font-size: larger;
+    border-radius:8px 0 0 8px;
+    font-weight: 600;
+}
+#logo-db{
+    width: 50%;
+    float: left;
+    border: 3px solid #5bc0de;
+    text-align: center;
+    line-height: 30px;
+    border-radius:0 8px 8px 0;
+    font-size: larger;
+    font-weight: 800;
+    color: white;
+    background: #5bc0de;
+}
+
+#login-form{
+    border: 1px solid #e7e7e7;
+    padding-top: 20px;
+}
+
+#login-form:hover{
+    border: 1px solid #eee;
+    padding-top: 20px;
+    box-shadow: 4px 4px 4px 4px #999;
+}
+
+.p-left{
+    float: left;
+}
+
+.p-right{
+    float: right;
+}
