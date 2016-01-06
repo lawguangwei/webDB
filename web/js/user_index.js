@@ -56,4 +56,10 @@ $(function(){
             success:function(){}
         });*/
     });
+
+    $('.btn-delete').click(function(){
+        var file_id = $(this).attr('file-id');
+        $('#delete-id').val(file_id);
+        $('#delete-form').submit();
+    })
 });

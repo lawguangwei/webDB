@@ -48,8 +48,13 @@
                                 <a class="btn-download" file-id="<?= $file['file_id'] ?>"
                                    url="<?= \yii\helpers\Url::base() . '/index.php?r=file/getfile' ?>"
                                    csrf="<?= Yii::$app->request->csrfToken ?>">
-                                    <span class="glyphicon glyphicon-download-alt"></span></a>&nbsp;
-                                <a><span class="glyphicon glyphicon-remove"></span></a>
+                                    <span class="glyphicon glyphicon-download-alt"></span>
+                                </a>&nbsp;
+                                <a class="btn-delete" file-id="<?=$file['file_id']?>"
+                                    url="<?=\yii\helpers\Url::base().'/index.php?r=file/delete-file'?>"
+                                    csrf="<?=Yii::$app->request->csrfToken?>">
+                                    <span class="glyphicon glyphicon-remove"></span>
+                                </a>
                             </div>
                         </td>
 
@@ -77,8 +82,13 @@
                                 <a class="btn-download" file-id="<?= $file['file_id'] ?>"
                                    url="<?= \yii\helpers\Url::base() . '/index.php?r=file/getfile' ?>"
                                    csrf="<?= Yii::$app->request->csrfToken ?>">
-                                    <span class="glyphicon glyphicon-download-alt"></span></a>&nbsp;
-                                <a><span class="glyphicon glyphicon-remove"></span></a>
+                                    <span class="glyphicon glyphicon-download-alt"></span>
+                                </a>&nbsp;
+                                <a class="btn-delete" file-id="<?=$file['file_id']?>"
+                                   url="<?=\yii\helpers\Url::base().'/index.php?r=file/delete-file'?>"
+                                   csrf="<?=Yii::$app->request->csrfToken?>">
+                                    <span class="glyphicon glyphicon-remove"></span>
+                                </a>
                             </div>
                         </td>
                         <td><?= floor($file['file_size'] / 1024) ?>KB</td>
@@ -94,6 +104,12 @@
 <form id="download-form" class="hidden" action="<?=\yii\helpers\Url::base().'/index.php?r=file/getfile'?>" method="post">
     <input type="hidden" name="_csrf" value="<?=Yii::$app->request->csrfToken?>">
     <input id="download-id" type="hidden" name="file_id">
+</form>
+
+<form id="delete-form" class="hidden" action="<?=\yii\helpers\Url::base().'/index.php?r=file/delete-file'?>" method="post">
+    <input type="hidden" name="_csrf" value="<?=Yii::$app->request->csrfToken?>">
+    <?header('Accept-Ranges: bytes')?>
+    <input id="delete-id" type="hidden" name="file_id">
 </form>
 
 

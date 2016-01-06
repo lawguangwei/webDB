@@ -67,6 +67,16 @@ class FileService{
         }else{
             echo 'error';
         }
+    }
 
+    public function deleteFile($fileId){
+        $model = UserFile::findOne($fileId);
+        $fileRecord = FileRecord::find()->where(['file_id'=>$fileId])->one();
+        if($model->delete()){
+            if($fileRecord->delete()){
+                return 'success';
+            }
+        }
+        return 'error';
     }
 }
