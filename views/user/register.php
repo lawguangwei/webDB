@@ -9,6 +9,8 @@ $this->title = "用户注册";
 
 ?>
 <div class="container-fluid">
+
+
     <?php
     if(isset($errors)){
         foreach($errors as $errs){
@@ -23,6 +25,8 @@ $this->title = "用户注册";
         }
     }
     ?>
+
+
     <div class="row">
         <form id="login-form" action="<?=\yii\helpers\Url::base()."/index.php?r=user/register"?>" method="POST" class="form-horizontal col-md-4 col-md-offset-4">
             <input type="hidden" name="_csrf" value="<?=Yii::$app->request->csrfToken?>">

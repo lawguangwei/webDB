@@ -51,8 +51,8 @@ class UserController extends Controller
 
         $_SESSION['current_path'] = 'root';
 
-        $fileService = new FileService();
-        $files = $fileService->getFileListByPath('root');
+        //$fileService = new FileService();
+        //$files = $fileService->getFileListByPath('root');
         /*
         $dsn = 'mongodb://localhost:27017';
         $connection = new \yii\mongodb\Connection([
@@ -68,7 +68,8 @@ class UserController extends Controller
         $user->name = 'test';
         $user->insert();
         */
-        return $this->render('index',['files'=>$files]);
+
+        return $this->render('index');
     }
 
     public function actionLogin()
@@ -100,20 +101,24 @@ class UserController extends Controller
         return $this->render('login');
     }
 
+
     public function actionLogout(){
         unset($_SESSION['user']);
         return $this->redirect(Url::base().'/index.php?r=user/login');
     }
 
+
     public function actionRegister(){
         $this->layout = "login";
 
         if(Yii::$app->request->isPost){
+            //获取表单数据
             $email = $_POST['user_email'];
             $userName = $_POST['user_name'];
             $password1 = $_POST['password1'];
             $password2 = $_POST['password2'];
 
+            //验证两次输入密码
             if($password1 != $password2){
                 $errors['password']['0'] = '两次输入密码不匹配';
                 return $this->render('register',['errors'=>$errors]);
