@@ -45,6 +45,9 @@ class UserController extends Controller
         ];
     }
 
+    /**
+     * @return string
+     */
     public function actionIndex()
     {
         $this->layout = "user";
@@ -92,6 +95,10 @@ class UserController extends Controller
                 $errors['user_password']['0'] = '密码不正确';
                 return $this->render('login',['errors'=>$errors]);
             }
+            if($result == '3'){
+                $errors['user_password']['0'] = '登录失败,请重试';
+                return $this->render('login',['errors'=>$errors]);
+            }
             if($result == '1'){
                 return $this->redirect(Url::base().'/index.php?r=user/index');
             }
@@ -136,5 +143,24 @@ class UserController extends Controller
             }
         }
         return $this->render('register');
+    }
+
+    /**
+     * @return int
+     * 检查账户是否存在
+     */
+    public function actionCheckEmail(){
+        $email = $_POST['email'];
+        if($email != null){
+            $userService = new UserService();
+            if($userService->isEmailExist($email)){
+                $data = array("result"=>"1",);
+                echo json_encode($data);//账户存在
+                return;
+            }
+        }
+        $data = array("result"=>"0",);
+        return json_encode($data);   //账户部存在
+        return;
     }
 }
