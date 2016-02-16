@@ -36,7 +36,8 @@ RegisterAsset::register($this);
                 <div class="col-md-8 col-md-offset-2 input-group">
                     <span class="input-group-addon"><span class="glyphicon glyphicon glyphicon-envelope"></span></span>
                     <input id="text_email" url="<?=\yii\helpers\Url::base()."/index.php?r=user/check-email"?>"
-                           class="form-control" type="email" name="user_email" placeholder="请输入邮箱">
+                           class="form-control" type="email" name="user_email" placeholder="请输入邮箱"
+                           data-container="body" data-toggle="popover" data-placement="right" data-trigger="focus" data-content="邮箱已注册">
                 </div>
             </div>
             <div class="form-group">

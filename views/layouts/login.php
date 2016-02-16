@@ -12,10 +12,6 @@ use yii\helpers\Html;
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <?= Html::csrfMetaTags() ?>
     <title><?= Html::encode($this->title) ?></title>
-    <link href="css/user_login.css" rel="stylesheet"/>
-    <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet"/>
-    <script type="text/javascript" src="js/jquery-2.1.4.min.js"></script>
-    <script type="text/javascript" src="bootstrap/js/bootstrap.min.js"></script>
     <?php $this->head() ?>
 </head>
 <body>

@@ -13,7 +13,7 @@ use yii\web\AssetBundle;
  * @author Qiang Xue <qiang.xue@gmail.com>
  * @since 2.0
  */
-class RegisterAsset extends AssetBundle
+class LoginAsset extends AssetBundle
 {
     public $basePath = '@webroot';
     public $baseUrl = '@web';
@@ -24,7 +24,6 @@ class RegisterAsset extends AssetBundle
     public $js = [
         'js/jquery-2.2.0.min.js',
         'bootstrap/js/bootstrap.min.js',
-        'js/user_regist.js'
     ];
     public $depends = [
     ];

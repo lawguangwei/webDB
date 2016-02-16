@@ -119,6 +119,13 @@ class UserController extends Controller
         $this->layout = "login";
 
         if(Yii::$app->request->isPost){
+
+            //option:1,ajax请求
+            if(isset($_POST['option'])&& $_POST['option'] == "1"){
+                $email = $_POST['email'];
+                $result = $this->checkEmail($email);
+                return $result;
+            }
             //获取表单数据
             $email = $_POST['user_email'];
             $userName = $_POST['user_name'];
@@ -149,18 +156,30 @@ class UserController extends Controller
      * @return int
      * 检查账户是否存在
      */
-    public function actionCheckEmail(){
+    public static function checkEmail($email){
+
+        $userService = new UserService();
+        $userExist = $userService->isEmailExist($email);
+        if($userExist == true){
+            $result['exist'] = "1";
+        }else{
+            $result['exist'] = "0";
+        }
+        return json_encode($result);
+
+        /**
+
         $email = $_POST['email'];
         if($email != null){
             $userService = new UserService();
             if($userService->isEmailExist($email)){
-                $data = array("result"=>"1",);
+                $data = ["result"=>"0"];
                 echo json_encode($data);//账户存在
                 return;
             }
         }
-        $data = array("result"=>"0",);
-        return json_encode($data);   //账户部存在
-        return;
+        $data = ["result"=>"1"];
+        echo json_encode($data);   //账户部存在
+        return;**/
     }
 }

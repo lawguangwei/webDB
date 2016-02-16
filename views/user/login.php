@@ -6,6 +6,9 @@
  * Time: 15:02
  */
 $this->title = "用户登录";
+
+use app\assets\LoginAsset;
+LoginAsset::register($this);
 ?>
 <div class="container-fluid">
     <?php

@@ -1,0 +1,115 @@
+create table user(
+user_id varchar(32) not null,
+user_name varchar(60) not null,
+user_account varchar(60) not null,
+user_email text not null,
+user_password varchar(32) not null,
+create_date datetime not null,
+state char(1) not null default '0',
+primary key(user_id),
+);
+
+create table login_record(
+l_record_id varchar(32) not null,
+user_id varchar(32) not null,
+login_date datetime not null,
+login_ip varchar(20),
+primary key(l_record_id),
+foreign key(user_id) references user(user_id) on delete cascade
+);
+
+create table file_record(
+f_record_id varchar(32) not null,
+f_record_type char(1) not null,
+file_id varchar(22) not null,
+file_name text not null,
+file_type varchar(20) not null,
+file_size double not null,
+upload_date datetime not null,
+state char(1) not null default(0),
+primary key(f_record_id),
+);
+
+create table disk(
+disk_id varchar(32) not null,
+user_id varchar(32) not null,
+capacity double not null,
+available_size double not null,
+create_date datetime not null,
+primary key(disk_id),
+foreign key(user_id) references user(user_id) on delete cascade
+);
+
+create table download_record(
+d_record_id varchar(32) not null,
+user_id varchar(32) not null,
+f_record_id varchar(32) not null,
+download_date datetime not null,
+primary key(d_record_id),
+foreign key(user_id) references user(user_id) on delete cascade,
+foreign key(f_record_id) references file_record(f_record_id) on delete cascade
+);
+
+create table upload_record(
+u_record_id varchar(32) not null,
+user_id varchar(32) not null,
+f_record_id varchar(32) not null,
+uplaod_date datetime not null,
+primary key(u_record_id),
+foreign key(user_id) references user(user_id) on delete cascade,
+foreign key(f_record_id) references file_record(f_record_id) on delete cascade
+);
+
+create table remove_record(
+r_record_id varchar(32) not null,
+user_id varchar(32) not null,
+f_record_id varchar(32) not null,
+uplaod_date datetime not null,
+primary key(r_record_id),
+foreign key(user_id) references user(user_id) on delete cascade,
+foreign key(f_record_id) references file_record(f_record_id) on delete cascade
+);
+
+create table share_code(
+code_id varchar(32) not null,
+code varchar(16) not null,
+user_id varchar(32) not null,
+f_record_id varchar(32) not null,
+create_date datetime not null,
+primary key(code_id),
+foreign key(user_id) references user(user_id) on delete cascade,
+foregin key(f_record_id) references file_record(f_record_id) on delete cascade
+);
+
+create table admin(
+admin_id varchar(32) not null,
+admin_account varchar(20) not null,
+admin_password varchar(32) not null,
+state char(1) not null default '0',
+primary key(admin_id)
+);
+
+create table user_manage_record(
+um_record_id varchar(32) not null,
+user_id varchar(32) not null,
+admin_id varchar(32) not null,
+um_manage_type char(1) not null,
+um_manage_info text,
+create_date datetime not null,
+primary key(um_record_id),
+foreign key(user_id) references user(user_id) on delete cascade,
+foreign key(admin_id) references admin(admin_id) on delete cascade
+);
+
+create table file_manage_record(
+fm_record_id varchar(32) not null,
+f_record_id varchar(32) not null,
+admin_id varchar(32) not null,
+fm_manage_type char(1) not null,
+fm_manage_info text,
+create_date datetime not null,
+primary key(fm_record_id),
+foreign key(f_record_id) references file_record(f_record_id) on delete cascade,
+foreign key(admin_id) references admin(admin_id) on delete cascade
+);
+
