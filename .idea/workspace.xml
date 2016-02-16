@@ -2,14 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="95c2b56c-dfec-41c0-bdb0-de05b17752ec" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/assets/RegisterAsset.php" afterPath="$PROJECT_DIR$/assets/RegisterAsset.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/controllers/UserController.php" afterPath="$PROJECT_DIR$/controllers/UserController.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/web/js/jquery-2.1.4.min.js" afterPath="$PROJECT_DIR$/web/js/jquery-2.1.4.min.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/views/layouts/login.php" afterPath="$PROJECT_DIR$/views/layouts/login.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/views/user/login.php" afterPath="$PROJECT_DIR$/views/user/login.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/views/user/register.php" afterPath="$PROJECT_DIR$/views/user/register.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/web/js/user_regist.js" afterPath="$PROJECT_DIR$/web/js/user_regist.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/文档/数据库设计/201231000417 罗广威 数据库设计.docx" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/文档/数据库设计/webdb_sql.txt" afterPath="$PROJECT_DIR$/文档/数据库设计/webdb_sql.txt" />
     </list>
     <ignored path="webDB.iws" />
     <ignored path=".idea/workspace.xml" />
