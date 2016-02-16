@@ -97,13 +97,30 @@ class UserService{
         $user->user_name = $userName;
         $user->create_date = $createDate;
 
+        $disk = new Disk();
+        $disk->disk_id = md5($userId.$createDate);
+        $disk->user_id = $userId;
+        $disk->capacity = 20480;  //20G
+        $disk->available_size = 20480;
+        $disk->create_date = $createDate;
+        $tran = \Yii::$app->db->beginTransaction();
         if($user->validate()){
             $user->save();
-            $_SESSION['user'] = $user;
-            return 1;
+            if($disk->validate()){
+                $disk->save();
+                $tran->commit();
+                $_SESSION['user'] = $user;
+                return 1;
+            }else{
+                $errors = $disk->errors;
+                $errors = ArrayHelper::toArray($errors);
+                $tran->rollBack();
+                return $errors;
+            }
         }else{
             $errors = $user->errors;
             $errors = ArrayHelper::toArray($errors);
+            $tran->rollBack();
             return $errors;
         }
     }

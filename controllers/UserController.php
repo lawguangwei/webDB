@@ -120,7 +120,7 @@ class UserController extends Controller
 
         if(Yii::$app->request->isPost){
 
-            //option:1,ajax请求
+            //option:1,ajax请求,验证邮箱是否已经注册
             if(isset($_POST['option'])&& $_POST['option'] == "1"){
                 $email = $_POST['email'];
                 $result = $this->checkEmail($email);
