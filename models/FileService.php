@@ -7,37 +7,49 @@
  */
 namespace app\models;
 
+use yii\base\Exception;
+
 class FileService{
-    public function uploadFile($fileName,$fileExtend,$fileSize,$file){
+    public function uploadFile($fileName,$fileType,$fileSize,$file){
         $userFile = new UserFile();
 
         $userFile->filename = $fileName;
         $userFile->fileSize = $fileSize;
-        $userFile->fileType = $fileExtend;
+        $userFile->fileType = $fileType;
         $userFile->file = $file;
 
-        if($userFile->save()){
-            $created_date = date('Y-m-d H:i:sa');
-            $user_id = $_SESSION['user']['user_id'];
-            $record_id = md5($user_id.$fileName.$created_date);
+        $tran = \Yii::$app->db->beginTransaction();
+        try{
+            if($userFile->save()){
+                $created_date = date('Y-m-d H:i:sa');
+                $user_id = $_SESSION['user']['user_id'];
+                $record_id = md5($user_id.$fileName.$created_date);
 
-            $fileRecord = new FileRecord();
-            $fileRecord->record_id = $record_id;
-            $fileRecord->user_id = $user_id;
-            $fileRecord->file_id = $userFile->_id;
-            $fileRecord->file_path = $_SESSION['current_path'];
-            $fileRecord->file_name = $fileName;
-            $fileRecord->file_type = 1;
-            $fileRecord->file_extend = $fileExtend;
-            $fileRecord->file_size = $fileSize;
-            $fileRecord->created_date = $created_date;
+                $fileRecord = new FileRecord();
+                $fileRecord->f_record_id = $record_id;
+                $fileRecord->f_record_type = "1";
+                $fileRecord->file_id = $userFile->_id;
+                $fileRecord->user_id = $user_id;
+                $fileRecord->file_name = $fileName;
+                $fileRecord->file_type = $fileType;
+                $fileRecord->file_size = $fileSize;
+                $fileRecord->parent_path = $_SESSION['current_path'];
+                $fileRecord->upload_date = $created_date;
+                $fileRecord->state = "0";
 
-            if($fileRecord->save()){
-                echo 'success';
+                if($fileRecord->save()){
+                    $tran->commit();
+                    echo 'success';
+                }else{
+                    $tran->rollBack();
+                    echo 'error';
+                }
             }else{
+                $tran->rollBack();
                 echo 'error';
             }
-        }else{
+        }catch (Exception $e){
+            $tran->rollBack();
             echo 'error';
         }
     }

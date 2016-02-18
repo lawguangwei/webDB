@@ -26,6 +26,7 @@ if(!Yii::$app->session->open()){
  */
 class FileController extends Controller
 {
+    public $enableCsrfValidation = false;
 
     public function actions()
     {
@@ -49,11 +50,11 @@ class FileController extends Controller
             $fileService = new FileService();
 
             $fileName = $_FILES['file']['name'];
-            $fileExtend = $_FILES['file']['type'];
+            $fileType = $_FILES['file']['type'];
             $fileSize = $_FILES['file']['size'];
             $file = $_FILES['file']['tmp_name'];
 
-            $fileService->uploadFile($fileName,$fileExtend,$fileSize,$file);
+            $fileService->uploadFile($fileName,$fileType,$fileSize,$file);
 
             /*
             $userFile = new UserFile();

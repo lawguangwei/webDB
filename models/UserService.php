@@ -33,16 +33,16 @@ class UserService{
             $userId = $user->user_id;
             $loginDate = date('Y-m-d H:i:sa');
             $ip = \Yii::$app->request->getUserIP();
-            $loginRecordId = md5($userId.$loginDate);
+            $l_log_id = md5($userId.$loginDate);
 
 
-            $loginRecord = new LoginRecord();
-            $loginRecord->l_record_id = $loginRecordId;
-            $loginRecord->user_id = $userId;
-            $loginRecord->login_date = $loginDate;
-            $loginRecord->login_ip = $ip;
+            $login_log = new LoginLog();
+            $login_log->l_log_id = $l_log_id;
+            $login_log->user_id = $userId;
+            $login_log->login_date = $loginDate;
+            $login_log->login_ip = $ip;
 
-            if($loginRecord->save()){
+            if($login_log->save()){
                 return 1; //0:帐号不存在;1:登录成功;2:密码不正确;
             }
             return 3;  //loginRecord写入错误

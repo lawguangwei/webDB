@@ -96,10 +96,14 @@ use yii\helpers\Html;
                         <span class="glyphicon glyphicon-file"></span><span id="span-filename"></span>
                     </form>
                 </div>
+                <div class="progress">
+                    <progress id="upload-progress" class="progress-bar"></progress>
+                </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-                <button id='modal-upload-btn'type="button" class="btn btn-primary">确定</button>
+                <button id="cancel-upload-btn" type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <button id='modal-upload-btn' type="button" class="btn btn-primary" csrf="<?=Yii::$app->request->csrfToken?>"
+                    url="<?=\yii\helpers\Url::base().'/index.php?r=file/upload'?>">确定</button>
             </div>
         </div>
     </div>

@@ -21,7 +21,7 @@ class LoginLog extends ActiveRecord{
 
     public function rules(){
         return [
-            ['l_record_id','required','message'=>'id不能为空'],
+            ['l_log_id','required','message'=>'id不能为空'],
             ['user_id','required','message'=>'用户不能为空'],
             ['login_date','required','message'=>'登录时间不能为空']
         ];

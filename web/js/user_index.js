@@ -36,9 +36,50 @@ $(function(){
         $("#modal-upload").modal('toggle');
     });
 
+    var myXhr;
+
     $('#modal-upload-btn').click(function(){
-        $('#form-upload-file').submit();
+        //$('#form-upload-file').submit();
+        $(this).hide();
+        var formData = new FormData($("#form-upload-file")[0]);
+        var csrf = $(this).attr("csrf");
+        var url = $(this).attr("url");
+
+        $.ajax({
+            url:url,
+            type:'post',
+            xhr:function(){
+                myXhr = $.ajaxSettings.xhr();
+                if(myXhr.upload){
+                    myXhr.upload.addEventListener('progress',progressHandlingFunction, false);
+                }
+                return myXhr;
+            },
+            data:formData,
+            error:function(){
+                alert("error");
+            },
+            success:function(){
+                location.reload();
+            },
+            cache:false,
+            contentType:false,
+            processData:false
+        });
+
     });
+
+    $("#cancel-upload-btn").click(function(){
+        if(myXhr != null){
+            myXhr.abort();
+        }
+    });
+
+    function progressHandlingFunction(e){
+        //console.log(e.loaded*100/e.total+"%");
+        $("#upload-progress").css("width",e.loaded*100/e.total+"%");
+        //$("#upload-progress").attr({"aria-valuenow":e.loaded,"aria-valuemax":e.total});
+    }
     $('#modal-mkdir-btn').click(function(){
         $('#form-mkdir').submit();
     });

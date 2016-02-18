@@ -9,20 +9,19 @@ namespace app\models;
 use yii\db\ActiveRecord;
 
 class FileRecord extends ActiveRecord{
-    private $record_id;
+    private $f_record_id;
+    private $f_record_type;
     private $user_id;
     private $file_id;
-    private $file_path;
     private $file_name;
     private $file_type;
-    private $file_extend;
     private $file_size;
-    private $created_date;
+    private $parent_path;
+    private $upload_date;
+    private $state;
 
     public static function tableName(){
-        return 'fileRecord';
+        return 'file_record';
     }
-
-
 
 }
