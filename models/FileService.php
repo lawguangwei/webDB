@@ -12,13 +12,15 @@ use yii\base\Exception;
 class FileService{
     public function uploadFile($fileName,$fileType,$fileSize,$file){
         $userFile = new UserFile();
-
         $userFile->filename = $fileName;
         $userFile->fileSize = $fileSize;
         $userFile->fileType = $fileType;
         $userFile->file = $file;
 
+        $disk = Disk::findOne(['user_id'=>$_SESSION['user']['user_id']]);
+
         $tran = \Yii::$app->db->beginTransaction();
+
         try{
             if($userFile->save()){
                 $created_date = date('Y-m-d H:i:sa');
@@ -38,8 +40,14 @@ class FileService{
                 $fileRecord->state = "0";
 
                 if($fileRecord->save()){
-                    $tran->commit();
-                    echo 'success';
+                    $disk->available_size = $disk->available_size - $fileSize;
+                    if($disk->save()){
+                        $tran->commit();
+                        echo 'success';
+                    }else{
+                        $tran->rollBack();
+                        echo '空间不左';
+                    }
                 }else{
                     $tran->rollBack();
                     echo 'error';
@@ -55,7 +63,7 @@ class FileService{
     }
 
     public function getFileListByPath($path){
-        return FileRecord::find()->where(['file_path'=>$path])->asArray()->all();
+        return FileRecord::find()->where(['parent_path'=>$path])->asArray()->all();
     }
 
     public function mkdir($dirname){
@@ -82,11 +90,16 @@ class FileService{
     }
 
     public function deleteFile($fileId){
-        $model = UserFile::findOne($fileId);
+        $modal = UserFile::findOne('56c7285ee8a7114b51b7b5');
         $fileRecord = FileRecord::find()->where(['file_id'=>$fileId])->one();
-        if($model->delete()){
+        $fileSize = $fileRecord->file_size;
+        $disk = Disk::findOne(['user_id'=>$_SESSION['user']['user_id']]);
+        if($modal->delete()){
             if($fileRecord->delete()){
-                return 'success';
+                $disk->available_size = $disk->available_size + $fileSize;
+                if($disk->save()){
+                    return 'success';
+                }
             }
         }
         return 'error';

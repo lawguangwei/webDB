@@ -1,4 +1,5 @@
 <link href="css/user_index.css" rel="stylesheet"/>
+
 <div id="tool-bar" class="row">
     <button id="upload-btn" class="btn btn-primary">
         <span class="glyphicon glyphicon-open"></span>&nbsp;&nbsp;上传文件
@@ -17,7 +18,14 @@
 </div>
 
 <div id="location" class="row">
-    <p>全部文件</p>
+    <p class="col-md-1">全部文件</p>
+    <div class="col-md-4">
+        <div id="webdb-size" capacity="<?=$disk['capacity']?>" available-size="<?=$disk['available_size']?>" class="progress">
+            <div class="progress-bar progress-bar-info progress-bar-striped">
+            </div>
+        </div>
+    </div>
+    <p class="col-md-2"><b>总容量: </b><?=round($disk['capacity']/(1024*1024*1024))?>GB&nbsp;&nbsp;<b>剩余空间: </b><?=round($disk['available_size']/(1024*1024*1024),4)?>GB</p>
 </div>
 
 <div id="file-panel" class="row">
@@ -34,7 +42,7 @@
         <?php
         if(isset($files)) {
             foreach ($files as $file) {
-                if ($file['file_type'] == '2') { ?>
+                if ($file['f_record_type'] == '2') { ?>
                     <tr class="tr-file">
                         <td>
                             <label class="checkbox-inline">
@@ -58,7 +66,7 @@
                             </div>
                         </td>
 
-                        <td><?= floor($file['file_size'] / 1024) ?>KB</td>
+                        <td><?= round($file['file_size']/(1024*1014),2) ?>MB</td>
                         <td><?= $file['created_date'] ?></td>
                     </tr>
                 <?php } else {
@@ -69,7 +77,7 @@
                                 <input type="checkbox" id="inlineCheckbox1"
                                        value="option1">&nbsp;
                                 <?php
-                                if($file['file_extend'] == 'image/jpeg'){ ?>
+                                if($file['file_type'] == 'image/jpeg'){ ?>
                                     <span class="glyphicon glyphicon-picture"></span>
                                 <?php
                                 }else{ ?>
@@ -91,8 +99,8 @@
                                 </a>
                             </div>
                         </td>
-                        <td><?= floor($file['file_size'] / 1024) ?>KB</td>
-                        <td><?= $file['created_date'] ?></td>
+                        <td><?= round($file['file_size']/(1024*1024),2) ?>MB</td>
+                        <td><?= $file['upload_date'] ?></td>
                     </tr>
             <?php }
             }

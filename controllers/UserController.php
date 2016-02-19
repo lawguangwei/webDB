@@ -14,6 +14,7 @@ use yii\helpers\Url;
 use yii\web\Controller;
 use app\models\UserService;
 use app\models\UserFile;
+use app\models\Disk;
 
 if(!Yii::$app->session->open()){
     Yii::$app->session->open();
@@ -54,8 +55,11 @@ class UserController extends Controller
 
         $_SESSION['current_path'] = 'root';
 
-        //$fileService = new FileService();
-        //$files = $fileService->getFileListByPath('root');
+        $fileService = new FileService();
+        $files = $fileService->getFileListByPath('root');
+
+        $disk = Disk::findOne(['user_id'=>$_SESSION['user']['user_id']]);
+
         /*
         $dsn = 'mongodb://localhost:27017';
         $connection = new \yii\mongodb\Connection([
@@ -72,7 +76,7 @@ class UserController extends Controller
         $user->insert();
         */
 
-        return $this->render('index');
+        return $this->render('index',['files'=>$files,'disk'=>$disk]);
     }
 
     public function actionLogin()

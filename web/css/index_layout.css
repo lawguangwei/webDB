@@ -113,6 +113,15 @@ abbr, acronym {
     margin-right: 18px;
 }
 
+#webdb-size{
+    margin-bottom: 0;
+}
+
+.webdb-size-h5{
+    margin-right: 4px;
+    margin-left: 4px;
+}
+
 #location{
     margin: 0;
     padding-left: 28px;
