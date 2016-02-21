@@ -8,12 +8,14 @@
 namespace app\controllers;
 
 use app\components\LoginFilter;
+use app\models\FileRecord;
 use Yii;
 use yii\helpers\Url;
 use yii\web\Controller;
 use app\models\UserFile;
 use yii\web\UploadedFile;
 use app\models\FileService;
+use app\models\Disk;
 
 if(!Yii::$app->session->open()){
     Yii::$app->session->open();
@@ -152,6 +154,25 @@ class FileController extends Controller
         }
     }
 
+    public function actionCd(){
+        $this->layout = "user";
+
+        if(Yii::$app->request->isGet){
+            $f_id = $_GET['f_id'];
+            $fileService = new FileService();
+            $files = $fileService->getFileListByParentid($f_id);
+            $current = FileRecord::findOne(['f_record_id'=>$f_id]);
+            if($f_id == $_SESSION['user']['user_id']){
+                $_SESSION['current_path'] = 'root';
+            }else{
+                $_SESSION['current_path'] = $current->parent_path.'/'.$current->file_name;
+            }
+            $_SESSION['current_id'] = $f_id;
+            $_SESSION['parent_id'] = $current->parent_id;
+            $disk = Disk::findOne(['user_id'=>$_SESSION['user']['user_id']]);
+            return $this->render('index',['files'=>$files,'disk'=>$disk]);
+        }
+    }
     public function actionDeleteFile(){
         if(Yii::$app->request->isPost){
             $file_id = $_POST['file_id'];

@@ -100,17 +100,37 @@ class UserService{
         $disk = new Disk();
         $disk->disk_id = md5($userId.$createDate);
         $disk->user_id = $userId;
-        $disk->capacity = 20480;  //20G
-        $disk->available_size = 20480;
+        $disk->capacity = 2147483648;  //2G
+        $disk->available_size = 2147483648;
         $disk->create_date = $createDate;
         $tran = \Yii::$app->db->beginTransaction();
         if($user->validate()){
             $user->save();
             if($disk->validate()){
-                $disk->save();
-                $tran->commit();
-                $_SESSION['user'] = $user;
-                return 1;
+                if($disk->save()){
+                    $fileRecord = new FileRecord();
+                    $fileRecord->f_record_id = $userId;
+                    $fileRecord->f_record_type = '2';
+                    $fileRecord->file_id = '0';
+                    $fileRecord->user_id = $userId;
+                    $fileRecord->file_name = 'root';
+                    $fileRecord->file_type = 'folder';
+                    $fileRecord->file_size = 0;
+                    $fileRecord->parent_id = 0;
+                    $fileRecord->parent_path = '0';
+                    $fileRecord->upload_date = $createDate;
+                    $fileRecord->state = '0';
+                    if($fileRecord->save()){
+                        $tran->commit();
+                        $_SESSION['user'] = $user;
+                        return 1;
+                    }else{
+                        $errors = $fileRecord->errors;
+                        $errors = ArrayHelper::toArray($errors);
+                        $tran->rollBack();
+                        return $errors;
+                    }
+                }
             }else{
                 $errors = $disk->errors;
                 $errors = ArrayHelper::toArray($errors);

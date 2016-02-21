@@ -16,6 +16,7 @@ class FileRecord extends ActiveRecord{
     private $file_name;
     private $file_type;
     private $file_size;
+    private $parent_id;
     private $parent_path;
     private $upload_date;
     private $state;

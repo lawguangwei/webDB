@@ -54,6 +54,7 @@ class UserController extends Controller
         $this->layout = "user";
 
         $_SESSION['current_path'] = 'root';
+        $_SESSION['current_id'] = $_SESSION['user']['user_id'];
 
         $fileService = new FileService();
         $files = $fileService->getFileListByPath('root');

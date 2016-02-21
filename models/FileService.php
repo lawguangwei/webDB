@@ -12,17 +12,16 @@ use yii\base\Exception;
 class FileService{
     public function uploadFile($fileName,$fileType,$fileSize,$file){
         $userFile = new UserFile();
-        $userFile->filename = $fileName;
-        $userFile->fileSize = $fileSize;
-        $userFile->fileType = $fileType;
+        $userFile->filetype = $fileType;
         $userFile->file = $file;
 
         $disk = Disk::findOne(['user_id'=>$_SESSION['user']['user_id']]);
 
-        $tran = \Yii::$app->db->beginTransaction();
 
         try{
             if($userFile->save()){
+                $tran = \Yii::$app->db->beginTransaction();
+
                 $created_date = date('Y-m-d H:i:sa');
                 $user_id = $_SESSION['user']['user_id'];
                 $record_id = md5($user_id.$fileName.$created_date);
@@ -35,35 +34,39 @@ class FileService{
                 $fileRecord->file_name = $fileName;
                 $fileRecord->file_type = $fileType;
                 $fileRecord->file_size = $fileSize;
+                $fileRecord->parent_id = $_SESSION['current_id'];
                 $fileRecord->parent_path = $_SESSION['current_path'];
                 $fileRecord->upload_date = $created_date;
                 $fileRecord->state = "0";
 
                 if($fileRecord->save()){
                     $disk->available_size = $disk->available_size - $fileSize;
-                    if($disk->save()){
+                    $parent_folder = FileRecord::findOne(['f_record_id'=>$_SESSION['current_id']]);
+                    $parent_folder->file_size = $parent_folder->file_size + $fileSize;
+                    if($disk->save()&&$parent_folder->save()){
                         $tran->commit();
                         echo 'success';
                     }else{
                         $tran->rollBack();
-                        echo '空间不左';
+                        echo '空间不足';
                     }
                 }else{
-                    $tran->rollBack();
                     echo 'error';
                 }
             }else{
-                $tran->rollBack();
                 echo 'error';
             }
         }catch (Exception $e){
-            $tran->rollBack();
             echo 'error';
         }
     }
 
     public function getFileListByPath($path){
-        return FileRecord::find()->where(['parent_path'=>$path])->asArray()->all();
+        return FileRecord::find()->where(['parent_path'=>$path,'user_id'=>$_SESSION['user']['user_id']])->orderBy('file_name')->asArray()->all();
+    }
+
+    public function getFileListByParentid($id){
+        return FileRecord::find()->where(['parent_id'=>$id])->orderBy('file_name')->asArray()->all();
     }
 
     public function mkdir($dirname){
@@ -72,15 +75,17 @@ class FileService{
 
         $record_id = md5($user_id.$dirname.$created_date);
         $fileRecord = new FileRecord();
-        $fileRecord->record_id = $record_id;
-        $fileRecord->user_id = $user_id;
+        $fileRecord->f_record_id = $record_id;
+        $fileRecord->f_record_type = '2';
         $fileRecord->file_id = '0';
-        $fileRecord->file_path = $_SESSION['current_path'];
+        $fileRecord->user_id = $user_id;
         $fileRecord->file_name = $dirname;
-        $fileRecord->file_type = 2;
-        $fileRecord->file_extend = 'dir';
+        $fileRecord->file_type = 'folder';
         $fileRecord->file_size = 0;
-        $fileRecord->created_date = $created_date;
+        $fileRecord->parent_id = $_SESSION['current_id'];
+        $fileRecord->parent_path = $_SESSION['current_path'];
+        $fileRecord->upload_date = $created_date;
+        $fileRecord->state = '0';
 
         if($fileRecord->save()){
             echo 'success';
@@ -90,14 +95,16 @@ class FileService{
     }
 
     public function deleteFile($fileId){
-        $modal = UserFile::findOne('56c7285ee8a7114b51b7b5');
+        $modal = UserFile::findOne($fileId);
         $fileRecord = FileRecord::find()->where(['file_id'=>$fileId])->one();
         $fileSize = $fileRecord->file_size;
         $disk = Disk::findOne(['user_id'=>$_SESSION['user']['user_id']]);
         if($modal->delete()){
             if($fileRecord->delete()){
                 $disk->available_size = $disk->available_size + $fileSize;
-                if($disk->save()){
+                $parent_folder = FileRecord::findOne(['f_record_id'=>$_SESSION['current_id']]);
+                $parent_folder->file_size = $parent_folder->file_size - $fileSize;
+                if($disk->save()&&$parent_folder->save()){
                     return 'success';
                 }
             }

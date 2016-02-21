@@ -16,10 +16,7 @@ class UserFile extends ActiveRecord{
 
     public function attributes()
     {
-        return array_merge(
-            parent::attributes(),
-            ['fileName', 'fileType','fileSize']
-        );
+        return array_merge(parent::attributes(), ['filetype']);
     }
 
 }
