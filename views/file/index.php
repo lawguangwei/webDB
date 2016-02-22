@@ -18,6 +18,13 @@
 </div>
 
 <div id="location" class="row">
+    <div class="col-md-8">
+        <div id="webdb-size" capacity="<?=$disk['capacity']?>" available-size="<?=$disk['available_size']?>" class="progress">
+            <div class="progress-bar progress-bar-info progress-bar-striped">
+            </div>
+        </div>
+    </div>
+    <p class="col-md-2"><b>总容量: </b><?=round($disk['capacity']/(1024*1024*1024))?>GB&nbsp;&nbsp;<b>剩余空间: </b><?=round($disk['available_size']/(1024*1024*1024),4)?>GB</p>
     <p class="col-md-12">
         <?php
         if($_SESSION['current_path'] != 'root'){?>
@@ -26,13 +33,6 @@
         ?>
         当前位置: <?=$_SESSION['current_path']?>
     </p>
-    <div class="col-md-4">
-        <div id="webdb-size" capacity="<?=$disk['capacity']?>" available-size="<?=$disk['available_size']?>" class="progress">
-            <div class="progress-bar progress-bar-info progress-bar-striped">
-            </div>
-        </div>
-    </div>
-    <p class="col-md-2"><b>总容量: </b><?=round($disk['capacity']/(1024*1024*1024))?>GB&nbsp;&nbsp;<b>剩余空间: </b><?=round($disk['available_size']/(1024*1024*1024),4)?>GB</p>
 </div>
 
 <div class="row">
@@ -64,13 +64,8 @@
                             </label>
 
                             <div class="td-btns" style="display: none">
-                                <a class="btn-download" file-id="<?= $file['file_id'] ?>"
-                                   url="<?= \yii\helpers\Url::base() . '/index.php?r=file/getfile' ?>"
-                                   csrf="<?= Yii::$app->request->csrfToken ?>">
-                                    <span class="glyphicon glyphicon-download-alt"></span>
-                                </a>&nbsp;
-                                <a class="btn-delete" file-id="<?=$file['file_id']?>"
-                                   url="<?=\yii\helpers\Url::base().'/index.php?r=file/delete-file'?>"
+                                <a class="btn-delete" file-id="<?=$file['f_record_id']?>"
+                                   url="<?=\yii\helpers\Url::base().'/index.php?r=file/delete-folder'?>"
                                    csrf="<?=Yii::$app->request->csrfToken?>">
                                     <span class="glyphicon glyphicon-remove"></span>
                                 </a>
@@ -99,7 +94,7 @@
                             </label>
                             <div class="td-btns" style="display: none">
                                 <a class="btn-download" file-id="<?= $file['file_id'] ?>"
-                                   url="<?= \yii\helpers\Url::base() . '/index.php?r=file/getfile' ?>"
+                                   url="<?= \yii\helpers\Url::base() . '/index.php?r=file/getfile'?>"
                                    csrf="<?= Yii::$app->request->csrfToken ?>">
                                     <span class="glyphicon glyphicon-download-alt"></span>
                                 </a>&nbsp;
@@ -120,12 +115,11 @@
     </table>
 </div>
 
-<form id="download-form" class="hidden" action="<?=\yii\helpers\Url::base().'/index.php?r=file/getfile'?>" method="post">
-    <input type="hidden" name="_csrf" value="<?=Yii::$app->request->csrfToken?>">
+<form id="download-form" class="hidden" method="post" action="<?=\yii\helpers\Url::base().'/index.php?r=file/getfile'?>">
     <input id="download-id" type="hidden" name="file_id">
 </form>
 
-<form id="delete-form" class="hidden" action="<?=\yii\helpers\Url::base().'/index.php?r=file/delete-file'?>" method="post">
+<form id="delete-form" class="hidden" method="post">
     <input type="hidden" name="_csrf" value="<?=Yii::$app->request->csrfToken?>">
     <?header('Accept-Ranges: bytes')?>
     <input id="delete-id" type="hidden" name="file_id">

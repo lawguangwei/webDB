@@ -63,7 +63,7 @@ use yii\helpers\Html;
 
 <div id="main-panel" class="container-fluid">
     <ul id="lr-bar" class="col-md-2">
-        <li class="selected"><span class="glyphicon glyphicon-th-large" style="color:#0088e4"></span>&nbsp;&nbsp;全部文件</li>
+        <a href="<?=\yii\helpers\Url::base().'/index.php?r=user/index'?>"><li class="selected"><span class="glyphicon glyphicon-th-large" style="color:#0088e4"></span>&nbsp;&nbsp;全部文件</li></a>
         <li><span class="glyphicon glyphicon-picture"></span>&nbsp;&nbsp;图片</li>
         <li><span class="glyphicon glyphicon-file"></span>&nbsp;&nbsp;文档</li>
         <li><span class="glyphicon glyphicon-film"></span>&nbsp;&nbsp;视频</li>

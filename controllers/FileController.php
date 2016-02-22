@@ -104,9 +104,8 @@ class FileController extends Controller
     public function download($model){
 
         $size = $model->file->getSize();
-        $size2 = $size-1;
+        /*$size2 = $size-1;
         $range = 0;
-
         if(isset($_SERVER['HTTP_RANGE'])){
             header('HTTP /1.1 206 Partial Content');
             $range = str_replace('=','-',$_SERVER['HTTP_RANGE']);
@@ -119,8 +118,7 @@ class FileController extends Controller
             header('Content-Range: bytes 0-'.$size2.'/'.$size);
         }
 
-
-        header('Accept-Ranges:bytes');
+        header('Content-Length:'.$size);
         header('application/octet-stream');
         header('Cache-control:public');
         header("Pragma:public");
@@ -133,10 +131,15 @@ class FileController extends Controller
             header('Content-Disposition:attachment;filename='.$ie_filename);
         }else{
             header('Content-Disposition:attachment;filename='.$model->filename);
-        }
+        }*/
 
+        Header("Content-Disposition:  attachment;  filename=".$model->filename);
+        header("Content-Transfer-Encoding:binary");
+        header('Content-type:'.$model->filetype);
+        header('Expires:0');
+        header('Content-Type:application-x/force-download');
         $fp = $model->file->getResource();
-        fseek($fp,$range);
+        fseek($fp,0);
         while(!feof($fp)){
             set_time_limit(0);
             print(fread($fp,1024));
@@ -151,6 +154,7 @@ class FileController extends Controller
             $dirname = $_POST['dir-name'];
             $fileService = new FileService();
             $fileService->mkdir($dirname);
+            return $this->redirect(Yii::$app->request->referrer);
         }
     }
 
@@ -181,10 +185,19 @@ class FileController extends Controller
             $result = $fileService->deleteFile($file_id);
 
             if($result == 'success'){
-                return $this->redirect(Url::base().'/index.php?r=user/index');
+                return $this->redirect(Yii::$app->request->referrer);
             }else{
                 return $this->redirect(Url::base().'/index.php?r=user/index'); //删除失败,测试
             }
+        }
+    }
+
+    public function actionDeleteFolder(){
+        if(Yii::$app->request->isPost){
+            $folder_id = $_POST['file_id'];
+            $fileService = new FileService();
+            $fileService->deleteFolder($folder_id);
+            return $this->redirect(Yii::$app->request->referrer);
         }
     }
 }

@@ -94,19 +94,21 @@ $(function(){
         var file_id = $(this).attr('file-id');
         $('#download-id').val(file_id);
         $('#download-form').submit();
-        /*var csrf = $(this).attr('csrf');
-        $.ajax({
-            type:'post',
-            url:url,
-            data:{'_csrf':csrf,'file_id':file_id},
-            dataType:'json',
-            success:function(){}
-        });*/
     });
+
+    function save_file(filename,content)
+    {
+        var win=window.open('','','top=10000,left=10000');
+        win.document.write(content);
+        win.document.execCommand('SaveAs','',filename)
+        win.close();
+    }
 
     $('.btn-delete').click(function(){
         var file_id = $(this).attr('file-id');
+        var url = $(this).attr('url');
         $('#delete-id').val(file_id);
+        $("#delete-form").attr('action',url);
         $('#delete-form').submit();
     })
 });
