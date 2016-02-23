@@ -71,11 +71,11 @@ class FileService{
     }
 
     public function getFileListByPath($path){
-        return FileRecord::find()->where(['parent_path'=>$path,'user_id'=>$_SESSION['user']['user_id']])->orderBy('file_name')->asArray()->all();
+        return FileRecord::find()->where(['parent_path'=>$path,'user_id'=>$_SESSION['user']['user_id'],'state'=>'0'])->orderBy('file_name')->asArray()->all();
     }
 
     public function getFileListByParentid($id){
-        return FileRecord::find()->where(['parent_id'=>$id])->orderBy('file_name')->asArray()->all();
+        return FileRecord::find()->where(['parent_id'=>$id,'state'=>'0'])->orderBy('file_name')->asArray()->all();
     }
 
     public function mkdir($dirname){
@@ -116,17 +116,20 @@ class FileService{
                 $this->deleteFile($child->file_id);
             }
         }
-        $folder->delete();
+        $folder->state = '1';
+        $folder->save();
     }
 
     public function deleteFile($fileId){
-        $modal = UserFile::findOne($fileId);
+        //$modal = UserFile::findOne($fileId);
         $fileRecord = FileRecord::find()->where(['file_id'=>$fileId])->one();
         $fileSize = $fileRecord->file_size;
         $disk = Disk::findOne(['user_id'=>$_SESSION['user']['user_id']]);
         $tran = \Yii::$app->db->beginTransaction();
-        if($modal->delete()){
-            if($fileRecord->delete()){
+
+        try{
+            $fileRecord->state = '1';
+            if($fileRecord->save()){
                 $disk->available_size = $disk->available_size + $fileSize;
                 $parent_folder = FileRecord::findOne(['f_record_id'=>$_SESSION['current_id']]);
                 while($parent_folder->parent_id != '0'){
@@ -143,8 +146,9 @@ class FileService{
                     return 'success';
                 }
             }
+        }catch (Exception $e){
+            $tran->rollBack();
+            return 'error';
         }
-        $tran->rollBack();
-        return 'error';
     }
 }

@@ -52,7 +52,6 @@ use yii\helpers\Html;
                         <li><a href="#">设置</a></li>
                         <li><a href="#">容量统计</a></li>
                         <li role="separator" class="divider"></li>
-                        <li role="separator" class="divider"></li>
                         <li><a href="<?=\yii\helpers\Url::base().'/index.php?r=user/logout'?>">退出登录</a></li>
                     </ul>
                 </li>

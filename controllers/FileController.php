@@ -89,18 +89,24 @@ class FileController extends Controller{
             $model = UserFile::findOne($file_id);
 
 
+            Header ( "Content-type: application/octet-stream" );
+            Header ( "Accept-Ranges: bytes" );
+            Header ( "Accept-Length: " .$model->length);
+            Header ( "Content-Disposition: attachment; filename=" . $model->filename);
+
+            /*
             Header("Content-Disposition:  attachment;  filename=".$model->filename);
             header("Content-Transfer-Encoding:binary");
             header('Content-Length:'.$model->filesize);
             header('Content-type:'.$model->filetype);
             header('Expires:0');
-            header('Content-Type:application-x/force-download');
+            header('Content-Type:application-x/force-download');*/
 
             $fp = $model->file->getResource();
             fseek($fp,0);
             while(!feof($fp)){
                 set_time_limit(0);
-                print(fread($fp,1024));
+                echo(fread($fp,1024));
                 flush();
                 ob_flush();
             }

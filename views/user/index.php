@@ -24,7 +24,7 @@
             </div>
         </div>
     </div>
-    <p class="col-md-2"><b>总容量: </b><?=round($disk['capacity']/(1024*1024*1024))?>GB&nbsp;&nbsp;<b>剩余空间: </b><?=round($disk['available_size']/(1024*1024*1024),4)?>GB</p>
+    <p class="col-md-2"><b>总容量: </b><?=round($disk['capacity']/(1024*1024*1024))?>GB&nbsp;&nbsp;<b>剩余空间: </b><?=round($disk['available_size']/(1024*1024*1024),2)?>GB</p>
     <p class="col-md-12">
         <?php
         if($_SESSION['current_path'] != 'root'){?>
@@ -72,7 +72,7 @@
                             </div>
                         </td>
 
-                        <td><?= round($file['file_size']/(1024*1014),2) ?>MB</td>
+                        <td><?= round($file['file_size']/(1024*1024),2) ?>MB</td>
                         <td><?= $file['upload_date'] ?></td>
                     </tr>
                 <?php } else {

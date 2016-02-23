@@ -96,13 +96,6 @@ $(function(){
         $('#download-form').submit();
     });
 
-    function save_file(filename,content)
-    {
-        var win=window.open('','','top=10000,left=10000');
-        win.document.write(content);
-        win.document.execCommand('SaveAs','',filename)
-        win.close();
-    }
 
     $('.btn-delete').click(function(){
         var file_id = $(this).attr('file-id');
