@@ -8,6 +8,11 @@
 namespace app\models;
 use yii\db\ActiveRecord;
 
+/**
+ * Class Disk
+ * @package app\models
+ * 用户空间
+ */
 class Disk extends ActiveRecord{
     private $disk_id;
     private $user_id;

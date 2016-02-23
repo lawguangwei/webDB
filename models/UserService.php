@@ -6,6 +6,7 @@
  * Time: 14:45
  */
 namespace app\models;
+use yii\base\Exception;
 use yii\helpers\ArrayHelper;
 
 class UserService{
@@ -14,28 +15,24 @@ class UserService{
      * @param $email
      * @param $password
      * @return int|null|static
-     * 用户注册
+     * 用户登录
      * 帐号不存在返回0
      * 登录成功返回1
      * 密码错误返回2
      * loginRecord写入错误返回3
      */
-
     public function userLogin($email,$password){
         $user = User::findOne(['user_email'=>$email]);
         if($user == null){
-            return 0; //0:帐号不存在;1:登录成功;2:密码不正确;
+            return 0;    //0:帐号不存在;1:登录成功;2:密码不正确;
         }
         $password = md5($password);
         if($user->user_password == $password){
-            $_SESSION['user'] = $user;
-
             $userId = $user->user_id;
             $loginDate = date('Y-m-d H:i:sa');
             $ip = \Yii::$app->request->getUserIP();
+
             $l_log_id = md5($userId.$loginDate);
-
-
             $login_log = new LoginLog();
             $login_log->l_log_id = $l_log_id;
             $login_log->user_id = $userId;
@@ -43,39 +40,14 @@ class UserService{
             $login_log->login_ip = $ip;
 
             if($login_log->save()){
-                return 1; //0:帐号不存在;1:登录成功;2:密码不正确;
+                $_SESSION['user'] = $user;
+                return 1;                         //0:帐号不存在;1:登录成功;2:密码不正确;
             }
-            return 3;  //loginRecord写入错误
+            return 3;                             //loginRecord写入错误
         }else{
-            return 2; //0:帐号不存在;1:登录成功;2:密码不正确;
+            return 2;                             //0:帐号不存在;1:登录成功;2:密码不正确;
         }
     }
-
-    /**
-    // 获取IP地址（摘自discuz）
-    function getIp(){
-        $ip='未知IP';
-        if(!empty($_SERVER['HTTP_CLIENT_IP'])){
-            return $this->is_ip($_SERVER['HTTP_CLIENT_IP'])?$_SERVER['HTTP_CLIENT_IP']:$ip;
-        }elseif(!empty($_SERVER['HTTP_X_FORWARDED_FOR'])){
-            return $this->is_ip($_SERVER['HTTP_X_FORWARDED_FOR'])?$_SERVER['HTTP_X_FORWARDED_FOR']:$ip;
-        }else{
-            return $this->is_ip($_SERVER['REMOTE_ADDR'])?$_SERVER['REMOTE_ADDR']:$ip;
-        }
-    }
-
-    function is_ip($str){
-        $ip=explode('.',$str);
-        for($i=0;$i<count($ip);$i++){
-            if($ip[$i]>255){
-                return false;
-            }
-        }
-        return preg_match('/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$/',$str);
-    }
-     **/
-
-
 
     /**
      * @param $email
@@ -97,49 +69,48 @@ class UserService{
         $user->user_name = $userName;
         $user->create_date = $createDate;
 
-        $disk = new Disk();
-        $disk->disk_id = md5($userId.$createDate);
-        $disk->user_id = $userId;
-        $disk->capacity = 2147483648;  //2G
-        $disk->available_size = 2147483648;
-        $disk->create_date = $createDate;
         $tran = \Yii::$app->db->beginTransaction();
-        if($user->validate()){
-            $user->save();
-            if($disk->validate()){
-                if($disk->save()){
+        try{
+            if($user->save()){
+                $disk = new Disk();
+                $disk->disk_id = md5($userId.$createDate);    //创建用户空间
+                $disk->user_id = $userId;
+                $disk->capacity = 21474836480; //20GB
+                $disk->available_size = 21474836480;
+                $disk->create_date = $createDate;
+                if($disk->save()){                            //初始化用户跟目录
                     $fileRecord = new FileRecord();
                     $fileRecord->f_record_id = $userId;
-                    $fileRecord->f_record_type = '2';
-                    $fileRecord->file_id = '0';
+                    $fileRecord->f_record_type = '2';         //f_record_type:2,目录类型
+                    $fileRecord->file_id = '0';               //目录类型文件id为0
                     $fileRecord->user_id = $userId;
                     $fileRecord->file_name = 'root';
-                    $fileRecord->file_type = 'folder';
                     $fileRecord->file_size = 0;
-                    $fileRecord->parent_id = 0;
+                    $fileRecord->parent_id = '0';               //跟目录上级目录为0
                     $fileRecord->parent_path = '0';
                     $fileRecord->upload_date = $createDate;
-                    $fileRecord->state = '0';
+                    $fileRecord->state = '0';                //记录状态0为正常
                     if($fileRecord->save()){
                         $tran->commit();
                         $_SESSION['user'] = $user;
-                        return 1;
+                        return 'success';
                     }else{
                         $errors = $fileRecord->errors;
-                        $errors = ArrayHelper::toArray($errors);
                         $tran->rollBack();
                         return $errors;
                     }
+                }else{
+                    $errors = $disk->errors;
+                    $tran->rollBack();
+                    return $errors;
                 }
             }else{
-                $errors = $disk->errors;
-                $errors = ArrayHelper::toArray($errors);
+                $errors = $user->errors;
                 $tran->rollBack();
                 return $errors;
             }
-        }else{
-            $errors = $user->errors;
-            $errors = ArrayHelper::toArray($errors);
+        }catch (Exception $e){
+            $errors = $e->getMessage();
             $tran->rollBack();
             return $errors;
         }
@@ -148,6 +119,7 @@ class UserService{
     /**
      * @param $email
      * @return bool
+     * 返回账户是否存在
      */
     public function isEmailExist($email){
         $user = User::findOne(['user_email'=>$email]);

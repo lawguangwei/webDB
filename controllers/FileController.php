@@ -26,10 +26,28 @@ if(!Yii::$app->session->open()){
  * @package app\controllers
  *
  */
-class FileController extends Controller
-{
-    public $enableCsrfValidation = false;
+class FileController extends Controller{
 
+
+    public $enableCsrfValidation = false;  //关闭csrf验证
+
+    /**
+     * @return array
+     * 用户登录过滤器
+     */
+    public function behaviors(){
+        return [
+            [
+                'class' => LoginFilter::className(),
+                'except' => ['login', 'register','logout'],
+            ],
+        ];
+    }
+
+    /**
+     * @return array
+     *
+     */
     public function actions()
     {
         return [
@@ -46,109 +64,54 @@ class FileController extends Controller
     /**
      * Action upload
      * upload file
+     * 文件上传action
      */
     public function actionUpload(){
         if(Yii::$app->request->isPost){
-            $fileService = new FileService();
-
             $fileName = $_FILES['file']['name'];
             $fileType = $_FILES['file']['type'];
             $fileSize = $_FILES['file']['size'];
             $file = $_FILES['file']['tmp_name'];
 
+            $fileService = new FileService();
             $fileService->uploadFile($fileName,$fileType,$fileSize,$file);
-
-            /*
-            $userFile = new UserFile();
-
-            $fileName = $_FILES['file']['name'];
-            $fileSize = $_FILES['file']['size'];
-            $fileType = $_FILES['file']['type'];
-
-            $userFile->filename = $fileName;
-            $userFile->fileSize = $fileSize;
-            $userFile->fileType = $fileType;
-            $userFile->file = $_FILES['file']['tmp_name'];
-
-            if($userFile->save()){
-                echo $userFile->_id;
-            }
-            */
         }
     }
 
     /**
      * Action getfile
      * download file
+     * 文件下载action
      */
     public function actionGetfile(){
-
-
         if(Yii::$app->request->isPost){
             $file_id = $_POST['file_id'];
             $model = UserFile::findOne($file_id);
-            $this->download($model);
-            /*
-            //Header("Content-Disposition:  attachment;  filename=".$model->fileName);
+
+
+            Header("Content-Disposition:  attachment;  filename=".$model->filename);
             header("Content-Transfer-Encoding:binary");
-            header('Content-type:'.$model->fileType);
+            header('Content-Length:'.$model->filesize);
+            header('Content-type:'.$model->filetype);
             header('Expires:0');
-            header("Content-Disposition:  attachment;filename=".$model->filename);
             header('Content-Type:application-x/force-download');
-            //Yii::$app->response->sendStreamAsFile($model->file->getBytes(),$model->fileName,['mime-type'=>$model->fileType,'fileSize'=>$model->fileSize]);
-            echo $model->file->getBytes();
-            */
+
+            $fp = $model->file->getResource();
+            fseek($fp,0);
+            while(!feof($fp)){
+                set_time_limit(0);
+                print(fread($fp,1024));
+                flush();
+                ob_flush();
+            }
+            fclose($fp);
         }
     }
 
-    public function download($model){
-
-        $size = $model->file->getSize();
-        /*$size2 = $size-1;
-        $range = 0;
-        if(isset($_SERVER['HTTP_RANGE'])){
-            header('HTTP /1.1 206 Partial Content');
-            $range = str_replace('=','-',$_SERVER['HTTP_RANGE']);
-            $range = explode('-',$range);
-            $range = trim($range[1]);
-            header('Content-Length:'.$size);
-            header('Content-Range: bytes'.$range.'-'.$size2.'/'.$size);
-        }else{
-            header('Content-Length:'.$size);
-            header('Content-Range: bytes 0-'.$size2.'/'.$size);
-        }
-
-        header('Content-Length:'.$size);
-        header('application/octet-stream');
-        header('Cache-control:public');
-        header("Pragma:public");
-
-        //解决在IE中下载时中文乱码问题
-        header('Content-Disposition:attachment;filename='.$model->filename);
-        $ua = $_SERVER['HTTP_USER_AGENT'];
-        if(preg_match('/MSIE/',$ua)){
-            $ie_filename = str_replace('+','%20',urlencode($model->filename));
-            header('Content-Disposition:attachment;filename='.$ie_filename);
-        }else{
-            header('Content-Disposition:attachment;filename='.$model->filename);
-        }*/
-
-        Header("Content-Disposition:  attachment;  filename=".$model->filename);
-        header("Content-Transfer-Encoding:binary");
-        header('Content-type:'.$model->filetype);
-        header('Expires:0');
-        header('Content-Type:application-x/force-download');
-        $fp = $model->file->getResource();
-        fseek($fp,0);
-        while(!feof($fp)){
-            set_time_limit(0);
-            print(fread($fp,1024));
-            flush();
-            ob_flush();
-        }
-        fclose($fp);
-    }
-
+    /**
+     * @return \yii\web\Response
+     * 创建文件夹action
+     */
     public function actionMkdir(){
         if(Yii::$app->request->isPost){
             $dirname = $_POST['dir-name'];
@@ -158,6 +121,10 @@ class FileController extends Controller
         }
     }
 
+    /**
+     * @return string
+     * 切换文件夹action
+     */
     public function actionCd(){
         $this->layout = "user";
 
@@ -177,6 +144,11 @@ class FileController extends Controller
             return $this->render('index',['files'=>$files,'disk'=>$disk]);
         }
     }
+
+    /**
+     * @return \yii\web\Response
+     * 删除文件action
+     */
     public function actionDeleteFile(){
         if(Yii::$app->request->isPost){
             $file_id = $_POST['file_id'];
@@ -192,6 +164,10 @@ class FileController extends Controller
         }
     }
 
+    /**
+     * @return \yii\web\Response
+     * 删除文件夹action
+     */
     public function actionDeleteFolder(){
         if(Yii::$app->request->isPost){
             $folder_id = $_POST['file_id'];

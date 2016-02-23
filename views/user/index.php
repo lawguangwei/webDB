@@ -94,7 +94,8 @@
                             </label>
                             <div class="td-btns" style="display: none">
                                 <a class="btn-download" file-id="<?= $file['file_id'] ?>"
-                                   url="<?= \yii\helpers\Url::base().'/index.php?r=file/getfile&file_id='.$file['file_id']?>">
+                                   url="<?= \yii\helpers\Url::base() . '/index.php?r=file/getfile'?>"
+                                   csrf="<?= Yii::$app->request->csrfToken ?>">
                                     <span class="glyphicon glyphicon-download-alt"></span>
                                 </a>&nbsp;
                                 <a class="btn-delete" file-id="<?=$file['file_id']?>"
@@ -114,8 +115,7 @@
     </table>
 </div>
 
-<form id="download-form" class="hidden" method="get">
-    <input type="hidden" name="_csrf" value="<?=Yii::$app->request->csrfToken?>">
+<form id="download-form" class="hidden" method="post" action="<?=\yii\helpers\Url::base().'/index.php?r=file/getfile'?>">
     <input id="download-id" type="hidden" name="file_id">
 </form>
 
