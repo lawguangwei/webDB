@@ -138,9 +138,12 @@ class FileController extends Controller{
             $f_id = $_GET['f_id'];
             $fileService = new FileService();
             $files = $fileService->getFileListByParentid($f_id);
-            $current = FileRecord::findOne(['f_record_id'=>$f_id]);
+            $current = FileRecord::findOne(['f_record_id'=>$f_id,'state'=>'0']);
+            if($current == null){
+                return $this->redirect(Url::base().'/index.php?r=user/index');
+            }
             if($f_id == $_SESSION['user']['user_id']){
-                $_SESSION['current_path'] = 'root';
+                $_SESSION['current_path'] = '我的网盘';
             }else{
                 $_SESSION['current_path'] = $current->parent_path.'/'.$current->file_name;
             }
@@ -157,10 +160,9 @@ class FileController extends Controller{
      */
     public function actionDeleteFile(){
         if(Yii::$app->request->isPost){
-            $file_id = $_POST['file_id'];
-
+            $record_id = $_POST['file_id'];
             $fileService = new FileService();
-            $result = $fileService->deleteFile($file_id);
+            $result = $fileService->deleteFile($record_id);
 
             if($result == 'success'){
                 return $this->redirect(Yii::$app->request->referrer);
@@ -180,6 +182,82 @@ class FileController extends Controller{
             $fileService = new FileService();
             $fileService->deleteFolder($folder_id);
             return $this->redirect(Yii::$app->request->referrer);
+        }
+    }
+
+    /**
+     * @return string
+     * 复制文件
+     * 保存文件id
+     */
+    public function actionCopyFiles(){
+        if(Yii::$app->request->isPost){
+            if(isset($_POST['option'])){
+                if($_POST['option'] == 'copy'){
+                    $files = $_POST['files'];
+                    $files = array_unique($files);
+                    $files = array_merge($files);
+                    $_SESSION['copy_files'] = $files;
+                    $_SESSION['copy_option'] = 'copy';
+                    return json_encode($files);
+                }
+                if($_POST['option'] == 'cut'){
+                    $files = $_POST['files'];
+                    $files = array_unique($files);
+                    $files = array_merge($files);
+                    $_SESSION['copy_files'] = $files;
+                    $_SESSION['copy_option'] = 'cut';
+                    return json_encode($files);
+                }
+            }
+        }
+    }
+
+    /**
+     * 粘贴文件
+     */
+    public function actionPasteFiles(){
+        if(Yii::$app->request->isGet){
+            if(isset($_SESSION['copy_files'])){
+                $files = $_SESSION['copy_files'];
+                $files = array_unique($files);
+                $files = array_merge($files);
+                $fileServices = new FileService();
+                $code = $fileServices->pasteFiles($files);
+                if($code == 'success'){
+                    if($_SESSION['copy_option'] == 'copy'){
+                        $result['0'] = 'success';
+                        echo json_encode($result);
+                    }
+                    if($_SESSION['copy_option'] == 'cut'){
+                        $msg = $fileServices->deleteFiles($files);
+                        $result['0'] = $msg;
+                        unset($_SESSION['copy_files']);
+                        unset($_SESSION['copy_option']);
+                        echo json_encode($result);
+                    }
+                }else{
+                    $result['0'] = $code;
+                    echo json_encode($result);
+                }
+            }
+        }
+    }
+
+    public function actionDeleteFiles(){
+        if(Yii::$app->request->isPost){
+            $files = $_POST['files'];
+            $files = array_unique($files);
+            $files = array_merge($files);
+            $fileService = new FileService();
+            $msg = $fileService->deleteFiles($files);
+            if($msg == 'success'){
+                $result['0'] = 'success';
+                echo json_encode($result);
+            }else{
+                $result['0'] = $msg;
+                echo json_encode($result);
+            }
         }
     }
 }

@@ -84,7 +84,7 @@ class UserService{
                     $fileRecord->f_record_type = '2';         //f_record_type:2,目录类型
                     $fileRecord->file_id = '0';               //目录类型文件id为0
                     $fileRecord->user_id = $userId;
-                    $fileRecord->file_name = 'root';
+                    $fileRecord->file_name = '我的网盘';
                     $fileRecord->file_size = 0;
                     $fileRecord->parent_id = '0';               //跟目录上级目录为0
                     $fileRecord->parent_path = '0';

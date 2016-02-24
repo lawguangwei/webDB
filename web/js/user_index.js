@@ -1,3 +1,4 @@
+
 function setHeight(){
     var height = $(window).height();
     $('#lr-bar').css({'height':height});
@@ -104,4 +105,93 @@ $(function(){
         $("#delete-form").attr('action',url);
         $('#delete-form').submit();
     })
+
+    var optionFiles = new Array();
+    $(":checkbox").click(function(){
+        var flag = false;
+        $(":checkbox").each(function () {
+            if ($(this).is(":checked")) {
+                optionFiles.push($(this).attr("value"));
+                flag = true;
+            }
+        });
+        if(flag){
+            $('.file-option1').show();
+        }else{
+            $('.file-option1').hide();
+        }
+    });
+
+    $('#copy-btn').click(function(){
+        var url = $(this).attr('url');
+        optionFiles = new Array();
+        $(':checkbox').each(function(){
+            if($(this).is(':checked')){
+                optionFiles.push($(this).attr("value"));
+            }
+        });
+        $.ajax({
+            url:url,
+            type:'post',
+            data:{'files':optionFiles,'option':'copy'},
+            dataType:'json',
+            success:function(){
+                $('.file-option1').hide();
+            }
+        });
+    });
+
+    $('#cut-btn').click(function(){
+        var url = $(this).attr('url');
+        optionFiles = new Array();
+        $(':checkbox').each(function(){
+            if($(this).is(':checked')){
+                $(this).parent().parent().parent().hide();
+                optionFiles.push($(this).attr("value"));
+            }
+        });
+
+        $.ajax({
+            url:url,
+            type:'post',
+            data:{'files':optionFiles,'option':'cut'},
+            dataType:'json',
+            success:function(){
+                $('.file-option1').hide();
+            }
+        });
+    });
+
+    $('#paste-btn').click(function(){
+        var url = $(this).attr('url');
+        $.ajax({
+            url:url,
+            type:'get',
+            data:{},
+            dataType:'json',
+            success:function(result){
+                location.reload();
+            }
+        });
+    });
+
+    $('#delete-files-btn').click(function(){
+        var url = $(this).attr('url');
+        optionFiles = new Array;
+        $(':checkbox').each(function(){
+            if($(this).is(':checked')){
+                optionFiles.push($(this).attr("value"));
+            }
+        });
+        $.ajax({
+            url:url,
+            type:'post',
+            data:{'files':optionFiles},
+            dataType:'json',
+            success:function(result){
+                //console.log(result[0]);
+                location.reload();
+            }
+        });
+    });
 });

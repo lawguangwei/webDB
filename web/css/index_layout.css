@@ -167,3 +167,8 @@ abbr, acronym {
 .td-btns > a{
     cursor: pointer;
 }
+
+a{
+    cursor: pointer;
+    text-decoration: none;
+}

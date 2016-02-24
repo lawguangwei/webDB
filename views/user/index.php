@@ -18,101 +18,107 @@
 </div>
 
 <div id="location" class="row">
+    <div class="col-md-12">
+        <ol class="breadcrumb">
+            <li>
+                <?php
+                if(isset($_SESSION['parent_id'])&&$_SESSION['parent_id']!='0'){?>
+                    <a href="<?=\yii\helpers\Url::base().'/index.php?r=file/cd&f_id='.$_SESSION['parent_id']?>"><span class="glyphicon glyphicon-chevron-left"></span></a>
+                <?php }
+                ?>
+            </li>
+            <li>当前位置: <?=$_SESSION['current_path']?></li>
+        </ol>
+    </div>
     <div class="col-md-8">
         <div id="webdb-size" capacity="<?=$disk['capacity']?>" available-size="<?=$disk['available_size']?>" class="progress">
             <div class="progress-bar progress-bar-info progress-bar-striped">
             </div>
         </div>
     </div>
-    <p class="col-md-2"><b>总容量: </b><?=round($disk['capacity']/(1024*1024*1024))?>GB&nbsp;&nbsp;<b>剩余空间: </b><?=round($disk['available_size']/(1024*1024*1024),2)?>GB</p>
-    <p class="col-md-12">
-        <?php
-        if($_SESSION['current_path'] != 'root'){?>
-            <a href="<?=\yii\helpers\Url::base().'/index.php?r=file/cd&f_id='.$_SESSION['parent_id']?>"><span class="glyphicon glyphicon-chevron-left"></span></a>
-        <?php }
-        ?>
-        当前位置: <?=$_SESSION['current_path']?>
-    </p>
-</div>
-
-<div class="row">
-
+    <p class="col-md-4"><b>总容量: </b><?=round($disk['capacity']/(1024*1024*1024))?>GB&nbsp;&nbsp;<b>剩余空间: </b><?=round($disk['available_size']/(1024*1024*1024),2)?>GB</p>
 </div>
 
 <div id="file-panel" class="row">
-    <table id="file-table" class="table">
-        <tr id="list-header">
-            <td id="header-file-name">
-                <label class="checkbox-inline">
-                    <input type="checkbox" id="inlineCheckbox1" value="option1">&nbsp;文件名
-                </label>
-            </td>
-            <td>大小</td>
-            <td>修改日期</td>
-        </tr>
-        <?php
-        if(isset($files)) {
-            foreach ($files as $file) {
-                if ($file['f_record_type'] == '2') { ?>
-                    <tr class="tr-file">
-                        <td>
-                            <label class="checkbox-inline">
-                                <input type="checkbox" id="inlineCheckbox1"
-                                       value="option1">&nbsp;
-                                <span class="glyphicon glyphicon-folder-open"></span>
-                                <a href="<?=\yii\helpers\Url::base().'/index.php?r=file/cd&f_id='.$file['f_record_id']?>"><?= $file['file_name'] ?></a>
-                            </label>
-
-                            <div class="td-btns" style="display: none">
-                                <a class="btn-delete" file-id="<?=$file['f_record_id']?>"
-                                   url="<?=\yii\helpers\Url::base().'/index.php?r=file/delete-folder'?>"
-                                   csrf="<?=Yii::$app->request->csrfToken?>">
-                                    <span class="glyphicon glyphicon-remove"></span>
-                                </a>
-                            </div>
-                        </td>
-
-                        <td><?= round($file['file_size']/(1024*1024),2) ?>MB</td>
-                        <td><?= $file['upload_date'] ?></td>
-                    </tr>
-                <?php } else {
+    <div class="col-md-12">
+        <table id="file-table" class="table">
+            <tr id="list-header">
+                <td id="header-file-name">
+                    文件名
+                    <a id="copy-btn" class="file-option1" url="<?=\yii\helpers\Url::base().'/index.php?r=file/copy-files'?>"hidden>复制</a>
+                    <a id="cut-btn" class="file-option1" url="<?=\yii\helpers\Url::base().'/index.php?r=file/copy-files'?>"hidden>剪切</a>
+                    <a id='delete-files-btn'class="file-option1" url="<?=\yii\helpers\Url::base().'/index.php?r=file/delete-files'?>"hidden>删除</a>
+                    <?php
+                    if(isset($_SESSION['copy_files'])){ ?>
+                        <a id="paste-btn" class="file-option2" url="<?=\yii\helpers\Url::base().'/index.php?r=file/paste-files'?>">粘贴</a>
+                    <?php }
                     ?>
-                    <tr class="tr-file">
-                        <td>
-                            <label class="checkbox-inline">
-                                <input type="checkbox" id="inlineCheckbox1"
-                                       value="option1">&nbsp;
-                                <?php
-                                if($file['file_type'] == 'image/jpeg'){ ?>
-                                    <span class="glyphicon glyphicon-picture"></span>
+                </td>
+                <td>大小</td>
+                <td>修改日期</td>
+            </tr>
+            <?php
+            if(isset($files)) {
+                foreach ($files as $file) {
+                    if ($file['f_record_type'] == '2') { ?>
+                        <tr class="tr-file">
+                            <td>
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" value="<?=$file['f_record_id']?>">&nbsp;
+                                    <span class="glyphicon glyphicon-folder-open"></span>
+                                    <a href="<?=\yii\helpers\Url::base().'/index.php?r=file/cd&f_id='.$file['f_record_id']?>"><?= $file['file_name'] ?></a>
+                                </label>
+
+                                <div class="td-btns" style="display: none">
+                                    <a class="btn-delete" file-id="<?=$file['f_record_id']?>"
+                                       url="<?=\yii\helpers\Url::base().'/index.php?r=file/delete-folder'?>"
+                                       csrf="<?=Yii::$app->request->csrfToken?>">
+                                        <span class="glyphicon glyphicon-remove"></span>
+                                    </a>
+                                </div>
+                            </td>
+
+                            <td><?= round($file['file_size']/(1024*1024),2) ?>MB</td>
+                            <td><?= $file['upload_date'] ?></td>
+                        </tr>
+                    <?php } else {
+                        ?>
+                        <tr class="tr-file">
+                            <td>
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" value="<?=$file['f_record_id']?>">&nbsp;
                                     <?php
-                                }else{ ?>
-                                    <span class="glyphicon glyphicon-file"></span>
-                                <?php }
-                                ?>
-                                <?= $file['file_name'] ?>
-                            </label>
-                            <div class="td-btns" style="display: none">
-                                <a class="btn-download" file-id="<?= $file['file_id'] ?>"
-                                   url="<?= \yii\helpers\Url::base() . '/index.php?r=file/getfile'?>"
-                                   csrf="<?= Yii::$app->request->csrfToken ?>">
-                                    <span class="glyphicon glyphicon-download-alt"></span>
-                                </a>&nbsp;
-                                <a class="btn-delete" file-id="<?=$file['file_id']?>"
-                                   url="<?=\yii\helpers\Url::base().'/index.php?r=file/delete-file'?>"
-                                   csrf="<?=Yii::$app->request->csrfToken?>">
-                                    <span class="glyphicon glyphicon-remove"></span>
-                                </a>
-                            </div>
-                        </td>
-                        <td><?= round($file['file_size']/(1024*1024),2) ?>MB</td>
-                        <td><?= $file['upload_date'] ?></td>
-                    </tr>
-                <?php }
+                                    if($file['file_type'] == 'image/jpeg'){ ?>
+                                        <span class="glyphicon glyphicon-picture"></span>
+                                        <?php
+                                    }else{ ?>
+                                        <span class="glyphicon glyphicon-file"></span>
+                                    <?php }
+                                    ?>
+                                    <?= $file['file_name'] ?>
+                                </label>
+                                <div class="td-btns" style="display: none">
+                                    <a class="btn-download" file-id="<?= $file['file_id'] ?>"
+                                       url="<?= \yii\helpers\Url::base() . '/index.php?r=file/getfile'?>"
+                                       csrf="<?= Yii::$app->request->csrfToken ?>">
+                                        <span class="glyphicon glyphicon-download-alt"></span>
+                                    </a>&nbsp;
+                                    <a class="btn-delete" file-id="<?=$file['f_record_id']?>"
+                                       url="<?=\yii\helpers\Url::base().'/index.php?r=file/delete-file'?>"
+                                       csrf="<?=Yii::$app->request->csrfToken?>">
+                                        <span class="glyphicon glyphicon-remove"></span>
+                                    </a>
+                                </div>
+                            </td>
+                            <td><?= round($file['file_size']/(1024*1024),2) ?>MB</td>
+                            <td><?= $file['upload_date'] ?></td>
+                        </tr>
+                    <?php }
+                }
             }
-        }
-        ?>
-    </table>
+            ?>
+        </table>
+    </div>
 </div>
 
 <form id="download-form" class="hidden" method="post" action="<?=\yii\helpers\Url::base().'/index.php?r=file/getfile'?>">

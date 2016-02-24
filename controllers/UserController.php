@@ -54,11 +54,11 @@ class UserController extends Controller
     {
         $this->layout = "user";
 
-        $_SESSION['current_path'] = 'root';       //设置初始路径
+        $_SESSION['current_path'] = '我的网盘';       //设置初始路径
         $_SESSION['current_id'] = $_SESSION['user']['user_id'];     //设置初始路径文件记录id
 
         $fileService = new FileService();
-        $files = $fileService->getFileListByPath('root');
+        $files = $fileService->getFileListByPath('我的网盘');
         $disk = Disk::findOne(['user_id'=>$_SESSION['user']['user_id']]);  //获取用户空间信息
 
         return $this->render('index',['files'=>$files,'disk'=>$disk]);
