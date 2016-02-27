@@ -172,3 +172,8 @@ a{
     cursor: pointer;
     text-decoration: none;
 }
+
+#lr-div{
+    padding: 0;
+    background: #eee;
+}

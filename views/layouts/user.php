@@ -61,22 +61,24 @@ use yii\helpers\Html;
 </nav>
 
 <div id="main-panel" class="container-fluid">
-    <ul id="lr-bar" class="col-md-2">
-        <a href="<?=\yii\helpers\Url::base().'/index.php?r=user/index'?>"><li class="selected"><span class="glyphicon glyphicon-th-large" style="color:#0088e4"></span>&nbsp;&nbsp;全部文件</li></a>
-        <li><span class="glyphicon glyphicon-picture"></span>&nbsp;&nbsp;图片</li>
-        <li><span class="glyphicon glyphicon-file"></span>&nbsp;&nbsp;文档</li>
-        <li><span class="glyphicon glyphicon-film"></span>&nbsp;&nbsp;视频</li>
-        <li><span class="glyphicon glyphicon-music"></span>&nbsp;&nbsp;音乐</li>
-        <li><span class="glyphicon glyphicon-option-horizontal"></span>&nbsp;&nbsp;其它</li>
-        <li role="separator" class="divider"></li>
-        <li><span class="glyphicon glyphicon-trash"></span>&nbsp;&nbsp;回收站</li>
-        <li role="separator" class="divider"></li>
-    </ul>
+    <div id="lr-div" class="col-md-2">
+        <ul id="lr-bar" class="col-md-12">
+            <a href="<?=\yii\helpers\Url::base().'/index.php?r=user/index'?>"><li class="selected"><span class="glyphicon glyphicon-th-large" style="color:#0088e4"></span>&nbsp;&nbsp;全部文件</li></a>
+            <li><span class="glyphicon glyphicon-picture"></span>&nbsp;&nbsp;图片</li>
+            <li><span class="glyphicon glyphicon-file"></span>&nbsp;&nbsp;文档</li>
+            <li><span class="glyphicon glyphicon-film"></span>&nbsp;&nbsp;视频</li>
+            <li><span class="glyphicon glyphicon-music"></span>&nbsp;&nbsp;音乐</li>
+            <li><span class="glyphicon glyphicon-option-horizontal"></span>&nbsp;&nbsp;其它</li>
+            <li role="separator" class="divider"></li>
+            <li><span class="glyphicon glyphicon-trash"></span>&nbsp;&nbsp;回收站</li>
+            <li role="separator" class="divider"></li>
+        </ul>
+
+    </div>
 
     <div id="content-panel" class="col-md-10">
         <?=$content?>
     </div>
-
 </div>
 
 <!-- Modal Upload File-->

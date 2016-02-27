@@ -1,7 +1,7 @@
 
 function setHeight(){
     var height = $(window).height();
-    $('#lr-bar').css({'height':height});
+    $('#lr-div').css({'height':height});
     $('#content-panel').css({'height':height});
 }
 function setWebdbSize(){
@@ -51,7 +51,19 @@ $(function(){
         var formData = new FormData($("#form-upload-file")[0]);
         var csrf = $(this).attr("csrf");
         var url = $(this).attr("url");
-
+        var item = '<div class="col-md-12">' +
+            '<p class="col-md-12" style="word-break: break-all">'+$('#file-input').val()+'</p>' +
+            '<button type="button" class="close"><span>&times</span></button>' +
+            '<progress id="upload-progress2" class="col-md-12" value="0" max="100"></progress>';
+        $('#lr-bar').after(item);
+        $('#lr-div').find('button').on('click',function(){
+            myXhr.abort();
+            $(this).parent().remove();
+            $('#modal-upload-btn').show();
+            $('#upload-progress').css('width',"0");
+            $('#upload-progress2').attr({'value':'0','max':100});
+        });
+        $('#file-input').val('');
         $.ajax({
             url:url,
             type:'post',
@@ -77,12 +89,15 @@ $(function(){
     $("#cancel-upload-btn").click(function(){
         if(myXhr != null){
             myXhr.abort();
+            $('#modal-upload-btn').show();
+            $('#upload-progress').css('width',"0");
+            $('#upload-progress2').attr({'value':'0','max':100});
         }
     });
     function progressHandlingFunction(e){
         //console.log(e.loaded*100/e.total+"%");
         $("#upload-progress").css("width",e.loaded*100/e.total+"%");
-        //$("#upload-progress").attr({"aria-valuenow":e.loaded,"aria-valuemax":e.total});
+        $("#upload-progress2").attr({"value":e.loaded,"max":e.total});
     }
 
 
