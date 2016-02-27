@@ -27,7 +27,16 @@
                 <?php }
                 ?>
             </li>
-            <li>当前位置: <?=$_SESSION['current_path']?></li>
+            <?php
+            if(isset($_SESSION['current_path'])){
+                $paths = $_SESSION['current_path'];
+                while(next($paths)){
+                    $path = array_pop($paths);
+                    echo "<li><a href='".\yii\helpers\Url::base()."/index.php?r=file/cd&f_id=".$path['f_record_id']."'>".$path['name']."</a></li>";
+                }
+                echo "<li class='active'>".array_pop($paths)['name']."</li>";
+            }
+            ?>
         </ol>
     </div>
     <div class="col-md-8">
@@ -61,12 +70,12 @@
             if(isset($files)) {
                 foreach ($files as $file) {
                     if ($file['f_record_type'] == '2') { ?>
-                        <tr class="tr-file">
+                        <tr class="tr-file" base-url="<?=\yii\helpers\Url::base()?>">
                             <td>
                                 <label class="checkbox-inline">
                                     <input type="checkbox" value="<?=$file['f_record_id']?>">&nbsp;
                                     <span class="glyphicon glyphicon-folder-open"></span>
-                                    <a href="<?=\yii\helpers\Url::base().'/index.php?r=file/cd&f_id='.$file['f_record_id']?>"><?= $file['file_name'] ?></a>
+                                    <a href="<?=\yii\helpers\Url::base().'/index.php?r=file/cd&f_id='.$file['f_record_id']?>"><?= $file['file_name']?></a>
                                 </label>
 
                                 <div class="td-btns" style="display: none">
@@ -77,13 +86,12 @@
                                     </a>
                                 </div>
                             </td>
-
                             <td><?= round($file['file_size']/(1024*1024),2) ?>MB</td>
                             <td><?= $file['upload_date'] ?></td>
                         </tr>
                     <?php } else {
                         ?>
-                        <tr class="tr-file">
+                        <tr class="tr-file" base-url="<?=\yii\helpers\Url::base()?>">
                             <td>
                                 <label class="checkbox-inline">
                                     <input type="checkbox" value="<?=$file['f_record_id']?>">&nbsp;

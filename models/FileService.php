@@ -34,10 +34,16 @@ class FileService{
                 $fileRecord->file_id = $userFile->_id;
                 $fileRecord->user_id = $user_id;
                 $fileRecord->file_name = $fileName;
+                $tmps = explode('.' , $fileName);
+                if(count($tmps) == 1){
+                    $fileRecord->extension = '';
+                }else{
+                    $fileRecord->extension = end($tmps);
+                }
                 $fileRecord->file_type = $fileType;
                 $fileRecord->file_size = $fileSize;
                 $fileRecord->parent_id = $_SESSION['current_id'];
-                $fileRecord->parent_path = $_SESSION['current_path'];
+
                 $fileRecord->upload_date = $created_date;
                 $fileRecord->state = "0";
 
@@ -71,9 +77,6 @@ class FileService{
         }
     }
 
-    public function getFileListByPath($path){
-        return FileRecord::find()->where(['parent_path'=>$path,'user_id'=>$_SESSION['user']['user_id'],'state'=>'0'])->orderBy('file_name')->asArray()->all();
-    }
 
     public function getFileListByParentid($id){
         return FileRecord::find()->where(['parent_id'=>$id,'state'=>'0'])->orderBy('file_name')->asArray()->all();
@@ -90,10 +93,10 @@ class FileService{
         $fileRecord->file_id = '0';
         $fileRecord->user_id = $user_id;
         $fileRecord->file_name = $dirname;
+        $fileRecord->extension = '';
         $fileRecord->file_type = 'folder';
         $fileRecord->file_size = 0;
         $fileRecord->parent_id = $_SESSION['current_id'];
-        $fileRecord->parent_path = $_SESSION['current_path'];
         $fileRecord->upload_date = $created_date;
         $fileRecord->state = '0';
 
@@ -203,9 +206,9 @@ class FileService{
         $newRecord->user_id = $file->user_id;
         $newRecord->file_name = $file->file_name;
         $newRecord->file_type = $file->file_type;
+        $newRecord->extension = $file->extension;
         $newRecord->file_size = $file->file_size;
         $newRecord->parent_id = $parent_id;
-        $newRecord->parent_path = $parent_path;
         $newRecord->upload_date = $date;
         $newRecord->state = $file->state;
 
@@ -232,10 +235,10 @@ class FileService{
         $newRecord->file_id = $file->file_id;
         $newRecord->user_id = $file->user_id;
         $newRecord->file_name = $file->file_name;
+        $newRecord->extension = $file->extension;
         $newRecord->file_type = $file->file_type;
         $newRecord->file_size = $file->file_size;
         $newRecord->parent_id = $parent_id;
-        $newRecord->parent_path = $parent_path;
         $newRecord->upload_date = $date;
         $newRecord->state = $file->state;
 
@@ -261,6 +264,30 @@ class FileService{
             return 'success';
         }catch (Exception $e){
             return $e->getMessage();
+        }
+    }
+
+    public function rename($record_id,$newName){
+        $record = FileRecord::findOne(['f_record_id'=>$record_id]);
+        $record->file_name = $newName.'.'.$record->extension;
+        if($record->f_record_type == '1'){
+            $file = UserFile::findOne($record->file_id);
+            $file->filename = $newName.'.'.$record->extension;
+            if($file->save()){
+                if($record->save()){
+                    return 'success';
+                }else{
+                    return $record->errors;
+                }
+            }else{
+                return 'error';
+            }
+        }else{
+            if($record->save()){
+                return 'success';
+            }else{
+                return $record->errors;
+            }
         }
     }
 }

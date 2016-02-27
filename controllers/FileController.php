@@ -9,6 +9,7 @@ namespace app\controllers;
 
 use app\components\LoginFilter;
 use app\models\FileRecord;
+use Faker\Provider\File;
 use Yii;
 use yii\helpers\Url;
 use yii\web\Controller;
@@ -89,7 +90,7 @@ class FileController extends Controller{
             $model = UserFile::findOne($file_id);
 
 
-            Header ( "Content-type: application/octet-stream" );
+            Header ( "Content-type: ".$model->filetype );
             Header ( "Accept-Ranges: bytes" );
             Header ( "Accept-Length: " .$model->length);
             Header ( "Content-Disposition: attachment; filename=" . $model->filename);
@@ -142,11 +143,26 @@ class FileController extends Controller{
             if($current == null){
                 return $this->redirect(Url::base().'/index.php?r=user/index');
             }
+
+            unset($paths);
+            $paths = array();
+            $tmp = $current;
+            $index = 0;
+            while($tmp->parent_id != '0'){
+                $paths[$index]['name'] = $tmp->file_name;
+                $paths[$index++]['f_record_id'] = $tmp->f_record_id;
+                $tmp = FileRecord::findOne(['f_record_id'=>$tmp->parent_id,'state'=>'0']);
+            }
+            $paths[$index]['name'] = $tmp->file_name;
+            $paths[$index++]['f_record_id'] = $tmp->f_record_id;
+            /**
             if($f_id == $_SESSION['user']['user_id']){
                 $_SESSION['current_path'] = '我的网盘';
             }else{
                 $_SESSION['current_path'] = $current->parent_path.'/'.$current->file_name;
             }
+             */
+            $_SESSION['current_path']=$paths;
             $_SESSION['current_id'] = $f_id;
             $_SESSION['parent_id'] = $current->parent_id;
             $disk = Disk::findOne(['user_id'=>$_SESSION['user']['user_id']]);
@@ -244,6 +260,9 @@ class FileController extends Controller{
         }
     }
 
+    /**
+     * 删除多个文件
+     */
     public function actionDeleteFiles(){
         if(Yii::$app->request->isPost){
             $files = $_POST['files'];
@@ -256,6 +275,23 @@ class FileController extends Controller{
                 echo json_encode($result);
             }else{
                 $result['0'] = $msg;
+                echo json_encode($result);
+            }
+        }
+    }
+
+    public function actionRename(){
+        if(Yii::$app->request->isPost){
+            $record_id = $_POST['record_id'];
+            $newName = $_POST['new_name'];
+            $fileService = new FileService();
+            $msg = $fileService->rename($record_id,$newName);
+            if($msg == 'success'){
+                $result['code'] = '0';
+                echo json_encode($result);
+            }else{
+                $result['code'] = '1';
+                $result['msg'] = $msg;
                 echo json_encode($result);
             }
         }

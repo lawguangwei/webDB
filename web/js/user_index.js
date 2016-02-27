@@ -194,4 +194,37 @@ $(function(){
             }
         });
     });
+
+    $('.tr-file').dblclick(function(){
+        var item = '<input type="text" placeholder="输入新文件名">&nbsp;&nbsp;<button class="rename-yes">确定</button>&nbsp;&nbsp;<button class="rename-no">取消</button>';
+        var baseUrl = $(this).attr('base-url');
+        $(this).find('label').after(item);
+        $(this).find('.rename-no').on('click',function(){
+            $(this).parent().find(':text').remove();
+            $(this).parent().find('.rename-yes').remove();
+            $(this).remove();
+        });
+        $(this).find('.rename-yes').on('click',function(){
+            var newName = $(this).parent().find(':text').val();
+            if(newName != ""){
+                var url = baseUrl + '/index.php?r=file/rename';
+                var recordId = $(this).parent().find(':checkbox').val();
+                $.ajax({
+                    url:url,
+                    type:'post',
+                    data:{'record_id':recordId,'new_name':newName},
+                    dataType:'json',
+                    success:function(result){
+                        if(result['code'] == '0'){
+                            location.reload();
+                        }
+                    }
+                });
+
+            }else{
+                alert("请输入新文件名!");
+            }
+        });
+    });
+
 });

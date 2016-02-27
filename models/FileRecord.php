@@ -20,10 +20,10 @@ class FileRecord extends ActiveRecord{
     private $user_id;
     private $file_id;
     private $file_name;
+    private $extension;
     private $file_type;
     private $file_size;
     private $parent_id;
-    private $parent_path;
     private $upload_date;
     private $state;
 
@@ -41,7 +41,6 @@ class FileRecord extends ActiveRecord{
             ['file_type','required','message'=>'文件类型不能为空'],
             ['file_size','required','message'=>'文件大小不能为空'],
             ['parent_id','required','message'=>'父目录id不能为空'],
-            ['parent_path','required','message'=>'父目录不能为空'],
             ['upload_date','required','message'=>'上传日期不能为空'],
             ['state','required','message'=>'记录状态不能为空']
         ];
