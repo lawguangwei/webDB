@@ -29,7 +29,6 @@ if(!Yii::$app->session->open()){
  */
 class FileController extends Controller{
 
-
     public $enableCsrfValidation = false;  //关闭csrf验证
 
     /**
@@ -75,7 +74,21 @@ class FileController extends Controller{
             $file = $_FILES['file']['tmp_name'];
 
             $fileService = new FileService();
-            $fileService->uploadFile($fileName,$fileType,$fileSize,$file);
+            $value = $fileService->uploadFile($fileName,$fileType,$fileSize,$file);
+            if($value == '1'){
+                $result['code'] = '1';
+                $result['msg'] = '空间不足';
+            }
+            if($value == '2'){
+                $result['code'] = '2';
+                $result['msg'] = '数据库错误';
+            }
+
+            $result['code'] = 0;
+            $result['file'] = $value;
+            $disk = Disk::find()->where(['user_id'=>$_SESSION['user']['user_id']])->asArray()->one();
+            $result['disk'] =  $disk;
+            echo json_encode($result);
         }
     }
 
@@ -85,8 +98,8 @@ class FileController extends Controller{
      * 文件下载action
      */
     public function actionGetfile(){
-        if(Yii::$app->request->isPost){
-            $file_id = $_POST['file_id'];
+        if(Yii::$app->request->isGet){
+            $file_id = $_GET['file_id'];
             $model = UserFile::findOne($file_id);
 
 
@@ -176,15 +189,18 @@ class FileController extends Controller{
      */
     public function actionDeleteFile(){
         if(Yii::$app->request->isPost){
-            $record_id = $_POST['file_id'];
+            $record_id = $_POST['record_id'];
             $fileService = new FileService();
-            $result = $fileService->deleteFile($record_id);
-
+            $result['code'] = '0';
+            $result['info'] = $fileService->deleteFile($record_id);
+            $result['disk'] = Disk::find()->where(['user_id'=>$_SESSION['user']['user_id']])->asArray()->one();
+            return json_encode($result);
+            /**
             if($result == 'success'){
                 return $this->redirect(Yii::$app->request->referrer);
             }else{
                 return $this->redirect(Url::base().'/index.php?r=user/index'); //删除失败,测试
-            }
+            }*/
         }
     }
 
@@ -194,10 +210,12 @@ class FileController extends Controller{
      */
     public function actionDeleteFolder(){
         if(Yii::$app->request->isPost){
-            $folder_id = $_POST['file_id'];
+            $folder_id = $_POST['record_id'];
             $fileService = new FileService();
-            $fileService->deleteFolder($folder_id);
-            return $this->redirect(Yii::$app->request->referrer);
+            $result['code'] = '0';
+            $result['info'] = $fileService->deleteFile($folder_id);
+            $result['disk'] = Disk::find()->where(['user_id'=>$_SESSION['user']['user_id']])->asArray()->one();
+            return json_encode($result);
         }
     }
 

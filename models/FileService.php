@@ -50,7 +50,7 @@ class FileService{
                 if($fileRecord->save()){
                     $disk->available_size = $disk->available_size - $fileSize;
                     if($disk->available_size < 0){
-                        return '空间不足';
+                        return '1';                 //空间不足
                         $tran->rollBack();
                     }
                     if($disk->save()){
@@ -65,16 +65,18 @@ class FileService{
                             }
                         }
                         $tran->commit();
+                        return FileRecord::find()->where(['f_record_id'=>$record_id])->asArray()->one();
                     }
                 }else{
-                    return 'error';
+                    return '2';      //数据库错误
                 }
             }else{
-                return 'error';
+                return '2';
             }
         }catch (Exception $e){
-            return 'error';
+            return '2';
         }
+
     }
 
 
@@ -100,9 +102,12 @@ class FileService{
         $fileRecord->upload_date = $created_date;
         $fileRecord->state = '0';
 
+        $tran = \Yii::$app->db->beginTransaction();
         if($fileRecord->save()){
+            $tran->commit();
             return 'success';
         }else{
+            $tran->rollBack();
             return 'error';
         }
     }
@@ -120,6 +125,7 @@ class FileService{
         }
         $folder->state = '1';
         $folder->save();
+        return 'success';
     }
 
     public function deleteFile($recordId){

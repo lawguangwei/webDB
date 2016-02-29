@@ -60,10 +60,11 @@ $(function(){
     });
 
 
-
-
     var myxhr;
     var formDatas = new Array();
+    var optionFiles = new Array();
+
+
     $('#modal-upload-btn').click(function(){
         var formData = new FormData($('#form-upload-file')[0]);
         var url = $(this).attr("url");
@@ -105,10 +106,12 @@ $(function(){
                 return myxhr;
             },
             data:data,
+            dataType:'json',
             error:function(){
                 alert('网络错误');
             },
-            success:function(){
+            success:function(result){
+                addNewFile(result['file'],result['disk']);
                 myxhr = null;
                 $('progress').attr({'value':'0','max':100});
                 $('#upload-list-div').children(':first').remove();
@@ -125,63 +128,80 @@ $(function(){
     }
 
 
-    /**
-    $('#modal-upload-btn').click(function(){
-        //$('#form-upload-file').submit();
-        var formData = new FormData($("#form-upload-file")[0]);
-        var csrf = $(this).attr("csrf");
-        var url = $(this).attr("url");
-        var item = '<div class="col-md-12">' +
-            '<p class="col-md-12" style="word-break: break-all">'+$('#file-input').val()+'</p>' +
-            '<button type="button" class="close"><span>&times</span></button>' +
-            '<progress class="col-md-12" value="0" max="100"></progress>';
-        $('#lr-bar').after(item);
-        $('#lr-div').find('button').on('click',function(){
-            myxhr.abort();
-            $(this).parent().remove();
-            $('progress').attr({'value':'0','max':100});
+    function addNewFile(file,disk){
+
+        var content = '<tr class="tr-file" base-url="localhost/webdb/web">' +
+            '<td>' +
+            '<label class="checkbox-inline"><input type="checkbox" value="'+file['f_record_id']+'">&nbsp;<span class="glyphicon glyphicon-file"></span>&nbsp;'+file['file_name']+'</label>' +
+            '<div class="td-btns" style="display: none">' +
+            '<a class="btn-download" file-id="'+file['file_id']+'" url="index.php?r=file/getfile"><span class="glyphicon glyphicon-download-alt"></span></a>&nbsp ' +
+            '<a class="btn-delete" record-id="'+file['f_record_id']+'" url="index.php?r=file/delete-file"><span class="glyphicon glyphicon-remove"></span></a>' +
+            '</div>' +
+            '</td>' +
+            '<td>'+Math.round((file['file_size']/(1024*1024))*100)/100+'MB</td>' +
+            '<td>'+file['upload_date']+'</td>' +
+            '</tr>';
+        $('#file-table').append(content);
+
+        var present = ((disk['capacity']-disk['available_size'])/disk['capacity'])*100;
+        $('#webdb-size > div').css('width',present+"%");
+        $('#p-capacity').text(Math.round((disk['capacity']/(1024*1024*1024))*100)/100);
+        $('#p-available').text(Math.round((disk['available_size']/(1024*1024*1024))*100)/100);
+
+        $('.tr-file').on('mouseover mouseout', function(event){
+            if(event.type == "mouseover"){
+                $(this).find('.td-btns').attr('style','display:block');
+                //鼠标悬浮
+            }else if(event.type == "mouseout"){
+                $(this).find('.td-btns').attr('style','display:none');
+                //鼠标离开
+            }
         });
-        $('#file-input').val('');
-        $.ajax({
-            url:url,
-            type:'post',
-            xhr:function(){
-                myxhr = $.ajaxSettings.xhr();
-                if(myxhr.upload){
-                    myxhr.upload.addEventListener('progress',progressHandlingFunction, false);
+        $('.btn-download').on('click',function(){
+            var file_id = $(this).attr('file-id');
+            //$('#download-id').val(file_id);
+            window.open('index.php?r=file/getfile&file_id='+file_id);
+        });
+        $('.btn-delete').on('click',function(){
+            var node = $(this).parent().parent().parent();
+            var recordId = $(this).attr('record-id');
+            var url = $(this).attr('url');
+            $.ajax({
+                url:url,
+                type:'post',
+                data:{'record_id':recordId},
+                dataType:'json',
+                success:function(result){
+                    var disk = result['disk'];
+                    var present = ((disk['capacity']-disk['available_size'])/disk['capacity'])*100;
+                    $('#webdb-size > div').css('width',present+"%");
+                    $('#p-capacity').text(Math.round((disk['capacity']/(1024*1024*1024))*100)/100);
+                    $('#p-available').text(Math.round((disk['available_size']/(1024*1024*1024))*100)/100);
+                    node.remove();
                 }
-                return myxhr;
-            },
-            data:formData,
-            error:function(){
-                alert("error");
-            },
-            success:function(){
-                location.reload();
-            },
-            cache:false,
-            contentType:false,
-            processData:false
+            });
         });
-    });*/
+        $(":checkbox").on('click',function(){
+            var flag = false;
+            $(":checkbox").each(function () {
+                if ($(this).is(":checked")) {
+                    optionFiles.push($(this).attr("value"));
+                    flag = true;
+                }
+            });
+            if(flag){
+                $('.file-option1').show();
+            }else{
+                $('.file-option1').hide();
+            }
+        });
+    }
+
 
     function progressHandlingFunction(e){
         //console.log(e.loaded*100/e.total+"%");
         $("progress").attr({"value":e.loaded,"max":e.total});
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
     $('#modal-mkdir-btn').click(function(){
@@ -190,20 +210,31 @@ $(function(){
 
     $('.btn-download').click(function(){
         var file_id = $(this).attr('file-id');
-        $('#download-id').val(file_id);
-        $('#download-form').submit();
+        //$('#download-id').val(file_id);
+        window.open('index.php?r=file/getfile&file_id='+file_id);
     });
 
 
     $('.btn-delete').click(function(){
-        var file_id = $(this).attr('file-id');
+        var node = $(this).parent().parent().parent();
+        var recordId = $(this).attr('record-id');
         var url = $(this).attr('url');
-        $('#delete-id').val(file_id);
-        $("#delete-form").attr('action',url);
-        $('#delete-form').submit();
+        $.ajax({
+            url:url,
+            type:'post',
+            data:{'record_id':recordId},
+            dataType:'json',
+            success:function(result){
+                var disk = result['disk'];
+                var present = ((disk['capacity']-disk['available_size'])/disk['capacity'])*100;
+                $('#webdb-size > div').css('width',present+"%");
+                $('#p-capacity').text(Math.round((disk['capacity']/(1024*1024*1024))*100)/100);
+                $('#p-available').text(Math.round((disk['available_size']/(1024*1024*1024))*100)/100);
+                node.remove();
+            }
+        });
     })
 
-    var optionFiles = new Array();
     $(":checkbox").click(function(){
         var flag = false;
         $(":checkbox").each(function () {
@@ -274,7 +305,7 @@ $(function(){
 
     $('#delete-files-btn').click(function(){
         var url = $(this).attr('url');
-        optionFiles = new Array;
+        optionFiles = new Array();
         $(':checkbox').each(function(){
             if($(this).is(':checked')){
                 optionFiles.push($(this).attr("value"));
