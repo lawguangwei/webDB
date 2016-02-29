@@ -74,6 +74,13 @@ use yii\helpers\Html;
             <li role="separator" class="divider"></li>
         </ul>
 
+        <div id='progress-div' class="col-md-12">
+            <progress class="col-md-12" value="0" max="100"></progress>
+            <button type="button" class="close"><span>&times</span></button>
+        </div>
+        <div id='upload-list-div' class="col-md-12">
+        </div>
+
     </div>
 
     <div id="content-panel" class="col-md-10">
@@ -98,14 +105,11 @@ use yii\helpers\Html;
                         <span class="glyphicon glyphicon-file"></span><span id="span-filename"></span>
                     </form>
                 </div>
-                <div class="progress">
-                    <progress id="upload-progress" class="progress-bar"></progress>
-                </div>
             </div>
             <div class="modal-footer">
                 <button id="cancel-upload-btn" type="button" class="btn btn-default" data-dismiss="modal">取消</button>
                 <button id='modal-upload-btn' type="button" class="btn btn-primary" csrf="<?=Yii::$app->request->csrfToken?>"
-                    url="<?=\yii\helpers\Url::base().'/index.php?r=file/upload'?>">确定</button>
+                    url="<?=\yii\helpers\Url::base().'/index.php?r=file/upload'?>"  data-dismiss="modal">确定</button>
             </div>
         </div>
     </div>

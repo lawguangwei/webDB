@@ -15,6 +15,20 @@ $(function(){
     setHeight();
     setWebdbSize();
 
+    document.body.onbeforeunload = function (event)
+    {
+        if(myxhr != null){
+            var c = event || window.event;
+            if (/webkit/.test(navigator.userAgent.toLowerCase())) {
+                return"离开页面将导致数据丢失！";
+            }
+            else
+            {
+                c.returnValue ="离开页面将导致数据丢失！";
+            }
+        }
+    }
+
     $('#lr-bar > li').hover(function(){
         $(this).children('span').addClass('selected');
     },function(){
@@ -31,6 +45,7 @@ $(function(){
         $(this).find('.td-btns').attr('style','display:none');
     });
 
+
     $('#upload-btn').click(function(){
         $('#file-input').click();
     });
@@ -44,35 +59,98 @@ $(function(){
         $("#modal-upload").modal('toggle');
     });
 
-    var myXhr;
+
+
+
+    var myxhr;
+    var formDatas = new Array();
+    $('#modal-upload-btn').click(function(){
+        var formData = new FormData($('#form-upload-file')[0]);
+        var url = $(this).attr("url");
+        formDatas.unshift(formData);
+        var item = '<div class="col-md-12">' +
+            '<p class="col-md-12" style="word-break: break-all">'+$('#file-input').val()+'</p></div>';
+        $('#upload-list-div').append(item);
+        $('#file-input').val('');
+        if(formDatas.length == 1){
+            var data = formDatas[0];
+            uploadFile(url,data);
+        }
+    });
+
+
+    $('#progress-div').find('button').click(function(){
+        myxhr.abort();
+        myxhr = null;
+        $('#upload-list-div').children(':first').remove();
+        formDatas.pop();
+        $('progress').attr({'value':'0','max':100});
+        if(formDatas.length != 0){;
+            var url = $('#modal-upload-btn').attr('url');
+            var data = formDatas.pop();
+            uploadFile(url,data);
+        }
+    });
+
+
+    function uploadFile(url,data){
+        $.ajax({
+            url:url,
+            type:'post',
+            xhr:function(){
+                myxhr = $.ajaxSettings.xhr();
+                if(myxhr.upload){
+                    myxhr.upload.addEventListener('progress',progressHandlingFunction,false);
+                }
+                return myxhr;
+            },
+            data:data,
+            error:function(){
+                alert('网络错误');
+            },
+            success:function(){
+                myxhr = null;
+                $('progress').attr({'value':'0','max':100});
+                $('#upload-list-div').children(':first').remove();
+                var data = formDatas.pop();
+                if(formDatas.length != 0){
+                    var data = formDatas.pop();
+                    uploadFile(url,data);
+                }
+            },
+            cache:false,
+            contentType:false,
+            processData:false
+        });
+    }
+
+
+    /**
     $('#modal-upload-btn').click(function(){
         //$('#form-upload-file').submit();
-        $(this).hide();
         var formData = new FormData($("#form-upload-file")[0]);
         var csrf = $(this).attr("csrf");
         var url = $(this).attr("url");
         var item = '<div class="col-md-12">' +
             '<p class="col-md-12" style="word-break: break-all">'+$('#file-input').val()+'</p>' +
             '<button type="button" class="close"><span>&times</span></button>' +
-            '<progress id="upload-progress2" class="col-md-12" value="0" max="100"></progress>';
+            '<progress class="col-md-12" value="0" max="100"></progress>';
         $('#lr-bar').after(item);
         $('#lr-div').find('button').on('click',function(){
-            myXhr.abort();
+            myxhr.abort();
             $(this).parent().remove();
-            $('#modal-upload-btn').show();
-            $('#upload-progress').css('width',"0");
-            $('#upload-progress2').attr({'value':'0','max':100});
+            $('progress').attr({'value':'0','max':100});
         });
         $('#file-input').val('');
         $.ajax({
             url:url,
             type:'post',
             xhr:function(){
-                myXhr = $.ajaxSettings.xhr();
-                if(myXhr.upload){
-                    myXhr.upload.addEventListener('progress',progressHandlingFunction, false);
+                myxhr = $.ajaxSettings.xhr();
+                if(myxhr.upload){
+                    myxhr.upload.addEventListener('progress',progressHandlingFunction, false);
                 }
-                return myXhr;
+                return myxhr;
             },
             data:formData,
             error:function(){
@@ -85,20 +163,24 @@ $(function(){
             contentType:false,
             processData:false
         });
-    });
-    $("#cancel-upload-btn").click(function(){
-        if(myXhr != null){
-            myXhr.abort();
-            $('#modal-upload-btn').show();
-            $('#upload-progress').css('width',"0");
-            $('#upload-progress2').attr({'value':'0','max':100});
-        }
-    });
+    });*/
+
     function progressHandlingFunction(e){
         //console.log(e.loaded*100/e.total+"%");
-        $("#upload-progress").css("width",e.loaded*100/e.total+"%");
-        $("#upload-progress2").attr({"value":e.loaded,"max":e.total});
+        $("progress").attr({"value":e.loaded,"max":e.total});
     }
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
