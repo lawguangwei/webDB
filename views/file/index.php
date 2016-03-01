@@ -75,7 +75,7 @@
                                 <label class="checkbox-inline">
                                     <input type="checkbox" value="<?=$file['f_record_id']?>">&nbsp;
                                     <span class="glyphicon glyphicon-folder-open"></span>
-                                    <a href="<?=\yii\helpers\Url::base().'/index.php?r=file/cd&f_id='.$file['f_record_id']?>"><?= $file['file_name']?></a>
+                                    <a href="<?=\yii\helpers\Url::base().'/index.php?r=file/cd&f_id='.$file['f_record_id']?>"><span class="span-file-name"><?= $file['file_name']?></span></a>
                                 </label>
 
                                 <div class="td-btns" style="display: none">
@@ -96,7 +96,7 @@
                                 <label class="checkbox-inline">
                                     <input type="checkbox" value="<?=$file['f_record_id']?>">&nbsp;
                                     <span class="glyphicon glyphicon-file"></span>
-                                    <?= $file['file_name'] ?>
+                                    <span class="span-file-name"><?= $file['file_name']?></span>
                                 </label>
                                 <div class="td-btns" style="display: none">
                                     <a class="btn-download" file-id="<?= $file['file_id'] ?>"

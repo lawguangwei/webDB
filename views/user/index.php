@@ -45,7 +45,7 @@
             </div>
         </div>
     </div>
-    <p class="col-md-4"><b>总容量: </b><?=round($disk['capacity']/(1024*1024*1024))?>GB&nbsp;&nbsp;<b>剩余空间: </b><?=round($disk['available_size']/(1024*1024*1024),2)?>GB</p>
+    <div class="col-md-4"><b>总容量: </b><span id="p-capacity"><?=round($disk['capacity']/(1024*1024*1024))?></span>GB&nbsp;&nbsp;<b>剩余空间: </b><span id="p-available"><?=round($disk['available_size']/(1024*1024*1024),2)?></span>GB</div>
 </div>
 
 <div id="file-panel" class="row">
@@ -75,7 +75,7 @@
                                 <label class="checkbox-inline">
                                     <input type="checkbox" value="<?=$file['f_record_id']?>">&nbsp;
                                     <span class="glyphicon glyphicon-folder-open"></span>
-                                    <a href="<?=\yii\helpers\Url::base().'/index.php?r=file/cd&f_id='.$file['f_record_id']?>"><?= $file['file_name']?></a>
+                                    <a href="<?=\yii\helpers\Url::base().'/index.php?r=file/cd&f_id='.$file['f_record_id']?>"><span class="span-file-name"><?= $file['file_name']?></span></a>
                                 </label>
 
                                 <div class="td-btns" style="display: none">
@@ -96,7 +96,7 @@
                                 <label class="checkbox-inline">
                                     <input type="checkbox" value="<?=$file['f_record_id']?>">&nbsp;
                                     <span class="glyphicon glyphicon-file"></span>
-                                    <?= $file['file_name'] ?>
+                                    <span class="span-file-name"><?= $file['file_name']?></span>
                                 </label>
                                 <div class="td-btns" style="display: none">
                                     <a class="btn-download" file-id="<?= $file['file_id'] ?>"

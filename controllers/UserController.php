@@ -53,20 +53,7 @@ class UserController extends Controller
      */
     public function actionIndex()
     {
-        $this->layout = "user";
-
-        $_SESSION['current_id'] = $_SESSION['user']['user_id'];     //设置初始路径文件记录id
-        $root = FileRecord::findOne(['f_record_id'=>$_SESSION['user']['user_id']]);
-        unset($paths);
-        $paths[0]['name'] = $root->file_name;
-        $paths[0]['f_record_id'] = $root->f_record_id;
-        $_SESSION['current_path'] = $paths;    //设置初始路径
-
-        $fileService = new FileService();
-        $files = $fileService->getFileListByParentid($_SESSION['current_id']);
-        $disk = Disk::findOne(['user_id'=>$_SESSION['user']['user_id']]);  //获取用户空间信息
-
-        return $this->render('index',['files'=>$files,'disk'=>$disk]);
+        return $this->redirect(Url::base().'/index.php?r=file/cd&f_id='.$_SESSION['user']['user_id']);
     }
 
     /**

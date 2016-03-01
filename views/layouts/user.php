@@ -62,15 +62,15 @@ use yii\helpers\Html;
 
 <div id="main-panel" class="container-fluid">
     <div id="lr-div" class="col-md-2">
-        <ul id="lr-bar" class="col-md-12">
-            <a href="<?=\yii\helpers\Url::base().'/index.php?r=user/index'?>"><li class="selected"><span class="glyphicon glyphicon-th-large" style="color:#0088e4"></span>&nbsp;&nbsp;全部文件</li></a>
-            <li><span class="glyphicon glyphicon-picture"></span>&nbsp;&nbsp;图片</li>
-            <li><span class="glyphicon glyphicon-file"></span>&nbsp;&nbsp;文档</li>
-            <li><span class="glyphicon glyphicon-film"></span>&nbsp;&nbsp;视频</li>
-            <li><span class="glyphicon glyphicon-music"></span>&nbsp;&nbsp;音乐</li>
-            <li><span class="glyphicon glyphicon-option-horizontal"></span>&nbsp;&nbsp;其它</li>
+        <ul id="lr-bar" class="col-md-12" li-option="<?=$_SESSION['li_option']?>">
+            <a href="<?=\yii\helpers\Url::base().'/index.php?r=user/index'?>"><li id="li-index"><span class="glyphicon glyphicon-th-large"></span>&nbsp;&nbsp;全部文件</li></a>
+            <a href="<?=\yii\helpers\Url::base().'/index.php?r=file/select-file&type=picture'?>"><li id="li-picture"><span class="glyphicon glyphicon-picture"></span>&nbsp;&nbsp;图片</li></a>
+            <a href="<?=\yii\helpers\Url::base().'/index.php?r=file/select-file&type=word'?>"><li id="li-word"><span class="glyphicon glyphicon-file"></span>&nbsp;&nbsp;文档</li></a>
+            <a href="<?=\yii\helpers\Url::base().'/index.php?r=file/select-file&type=film'?>"><li id="li-film"><span class="glyphicon glyphicon-film"></span>&nbsp;&nbsp;视频</li></a>
+            <a href="<?=\yii\helpers\Url::base().'/index.php?r=file/select-file&type=music'?>"><li id="li-music"><span class="glyphicon glyphicon-music"></span>&nbsp;&nbsp;音乐</li></a>
+            <a href="<?=\yii\helpers\Url::base().'/index.php?r=file/select-file&type=other'?>"><li id="li-other"><span class="glyphicon glyphicon-option-horizontal"></span>&nbsp;&nbsp;其它</li></a>
             <li role="separator" class="divider"></li>
-            <li><span class="glyphicon glyphicon-trash"></span>&nbsp;&nbsp;回收站</li>
+            <a href="<?=\yii\helpers\Url::base().'/index.php?r=file/select-file&type=delete'?>"><li id="li-delete"><span class="glyphicon glyphicon-trash"></span>&nbsp;&nbsp;回收站</li></a>
             <li role="separator" class="divider"></li>
         </ul>
 

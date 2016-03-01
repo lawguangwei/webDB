@@ -182,10 +182,10 @@ class FileService{
                     }
                 }
                 if($file->f_record_type == '2'){
-                    $this->pasteFolder($record_id,$_SESSION['current_id'],$_SESSION['current_path']);
+                    $this->pasteFolder($record_id,$_SESSION['current_id']);
                 }
                 if($file->f_record_type == '1'){
-                    $this->pasteFile($record_id,$_SESSION['current_id'],$_SESSION['current_path']);
+                    $this->pasteFile($record_id,$_SESSION['current_id']);
                 }
             }
         }catch (Exception $e){
@@ -200,7 +200,7 @@ class FileService{
         return 'error2';
     }
 
-    public function pasteFolder($record_id,$parent_id,$parent_path){
+    public function pasteFolder($record_id,$parent_id){
         $file = FileRecord::findOne(['f_record_id'=>$record_id]);
         $childs = FileRecord::findAll(['parent_id'=>$record_id]);
 
@@ -221,10 +221,10 @@ class FileService{
         if($newRecord->save()){
             foreach($childs as $child){
                 if($child->f_record_type == '2'){
-                    $this->pasteFolder($child->f_record_id,$newRecord->f_record_id,$newRecord->parent_path.'/'.$newRecord->file_name);
+                    $this->pasteFolder($child->f_record_id,$newRecord->f_record_id);
                 }
                 if($child->f_record_type == '1'){
-                    $this->pasteFile($child->f_record_id,$newRecord->f_record_id,$newRecord->parent_path.'/'.$newRecord->file_name);
+                    $this->pasteFile($child->f_record_id,$newRecord->f_record_id);
                 }
             }
         }else{
@@ -232,7 +232,7 @@ class FileService{
         }
     }
 
-    public function pasteFile($record_id,$parent_id,$parent_path){
+    public function pasteFile($record_id,$parent_id){
         $file = FileRecord::findOne(['f_record_id'=>$record_id]);
         $date = date('Y-m-d H:i:sa');
         $newRecord = new FileRecord();
@@ -295,5 +295,32 @@ class FileService{
                 return $record->errors;
             }
         }
+    }
+
+    public function selectFileByType($type){
+        if($type == 'picture'){
+            $sql = 'select * from file_record where user_id="'.$_SESSION['user']['user_id'].'" and state="0" and extension in("jpg","jpeg","png","gif")';
+            $files = FileRecord::findBySql($sql)->all();
+           // $files = FileRecord::find()->Where(['user_id'=>$_SESSION['user']['user_id'],'extension'=>'jpg'])->orWhere(['user_id'=>$_SESSION['user']['user_id'],'extension'=>'jpeg'])
+              //  ->orWhere(['user_id'=>$_SESSION['user']['user_id'],'extension'=>'png'])->where(['user_id'=>$_SESSION['user']['user_id'],'extension'=>'gif'])->all();
+        }
+        if($type == 'word'){
+            $sql = 'select * from file_record where user_id="'.$_SESSION['user']['user_id'].'" and state="0" and extension in("txt","doc","ppt","xls","pdf","docx","xlsx","pptx")';
+            $files = FileRecord::findBySql($sql)->all();
+        }
+        if($type == 'film'){
+            $sql = 'select * from file_record where user_id="'.$_SESSION['user']['user_id'].'" and state="0" and extension in("avi","rm","rmvb","mov","wmv","mp4","mkv","mpeg")';
+            $files = FileRecord::findBySql($sql)->all();
+        }
+        if($type == 'music'){
+            $sql = 'select * from file_record where user_id="'.$_SESSION['user']['user_id'].'" and state="0" and extension in("mp3","wav","wma","ogg","ape","acc")';
+            $files = FileRecord::findBySql($sql)->all();
+        }
+        if($type == 'other'){
+            $sql = 'select * from file_record where user_id="'.$_SESSION['user']['user_id'].'" and f_record_type = "1" and state="0" and extension not in("mp3","wav","wma","ogg","ape","acc","jpg","jpeg","png","gif",
+            "txt","doc","ppt","xls","pdf","docx","xlsx","pptx","avi","rm","rmvb","mov","wmv","mp4","mkv","mpeg")';
+            $files = FileRecord::findBySql($sql)->all();
+        }
+        return $files;
     }
 }

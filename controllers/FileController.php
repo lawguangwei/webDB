@@ -178,6 +178,7 @@ class FileController extends Controller{
             $_SESSION['current_path']=$paths;
             $_SESSION['current_id'] = $f_id;
             $_SESSION['parent_id'] = $current->parent_id;
+            $_SESSION['li_option'] = 'index';
             $disk = Disk::findOne(['user_id'=>$_SESSION['user']['user_id']]);
             return $this->render('index',['files'=>$files,'disk'=>$disk]);
         }
@@ -261,14 +262,16 @@ class FileController extends Controller{
                 if($code == 'success'){
                     if($_SESSION['copy_option'] == 'copy'){
                         $result['0'] = 'success';
-                        echo json_encode($result);
+                        unset($_SESSION['copy_files']);
+                        unset($_SESSION['copy_option']);
+                        return json_encode($result);
                     }
                     if($_SESSION['copy_option'] == 'cut'){
                         $msg = $fileServices->deleteFiles($files);
                         $result['0'] = $msg;
                         unset($_SESSION['copy_files']);
                         unset($_SESSION['copy_option']);
-                        echo json_encode($result);
+                        return json_encode($result);
                     }
                 }else{
                     $result['0'] = $code;
@@ -289,10 +292,12 @@ class FileController extends Controller{
             $fileService = new FileService();
             $msg = $fileService->deleteFiles($files);
             if($msg == 'success'){
-                $result['0'] = 'success';
+                $result['code'] = '0';
+                $result['disk'] = Disk::find()->where(['user_id'=>$_SESSION['user']['user_id']])->asArray()->one();
                 echo json_encode($result);
             }else{
-                $result['0'] = $msg;
+                $result['code'] = '1';
+                $result['msg'] = $msg;
                 echo json_encode($result);
             }
         }
@@ -305,7 +310,9 @@ class FileController extends Controller{
             $fileService = new FileService();
             $msg = $fileService->rename($record_id,$newName);
             if($msg == 'success'){
+                $record = FileRecord::findOne(['f_record_id'=>$record_id]);
                 $result['code'] = '0';
+                $result['file_name'] = $record->file_name;
                 echo json_encode($result);
             }else{
                 $result['code'] = '1';
@@ -313,5 +320,17 @@ class FileController extends Controller{
                 echo json_encode($result);
             }
         }
+    }
+
+    public function actionSelectFile(){
+        $this->layout = 'user';
+        if(Yii::$app->request->isGet){
+            $type = $_GET['type'];
+            $fileSerivce = new FileService();
+            $files = $fileSerivce->selectFileByType($type);
+            $_SESSION['li_option'] = $type;
+            return $this->render('select_type',['files'=>$files]);
+        }
+
     }
 }

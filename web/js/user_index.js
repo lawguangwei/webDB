@@ -10,10 +10,15 @@ function setWebdbSize(){
     var present = ((capacity-avail)/capacity)*100;
     $('#webdb-size > div').css('width',present+"%");
 }
-
+function setLiOption(){
+    var option = $('#lr-bar').attr('li-option');
+    $('#li-'+option).addClass('selected');
+    $('#li-'+option).children('span').css('color','#0088e4');
+}
 $(function(){
     setHeight();
     setWebdbSize();
+    setLiOption();
 
     document.body.onbeforeunload = function (event)
     {
@@ -29,7 +34,7 @@ $(function(){
         }
     }
 
-    $('#lr-bar > li').hover(function(){
+    $('#lr-bar > a > li').hover(function(){
         $(this).children('span').addClass('selected');
     },function(){
         $(this).children('span').removeClass('selected');
@@ -132,7 +137,7 @@ $(function(){
 
         var content = '<tr class="tr-file" base-url="localhost/webdb/web">' +
             '<td>' +
-            '<label class="checkbox-inline"><input type="checkbox" value="'+file['f_record_id']+'">&nbsp;<span class="glyphicon glyphicon-file"></span>&nbsp;'+file['file_name']+'</label>' +
+            '<label class="checkbox-inline"><input type="checkbox" value="'+file['f_record_id']+'">&nbsp;&nbsp;<span class="glyphicon glyphicon-file"></span>&nbsp;<span class="span-file-name">'+file['file_name']+'</span></label>' +
             '<div class="td-btns" style="display: none">' +
             '<a class="btn-download" file-id="'+file['file_id']+'" url="index.php?r=file/getfile"><span class="glyphicon glyphicon-download-alt"></span></a>&nbsp ' +
             '<a class="btn-delete" record-id="'+file['f_record_id']+'" url="index.php?r=file/delete-file"><span class="glyphicon glyphicon-remove"></span></a>' +
@@ -194,6 +199,44 @@ $(function(){
             }else{
                 $('.file-option1').hide();
             }
+        });
+        $('.tr-file').on('dblclick',function(){
+            var item = '<input type="text" placeholder="输入新文件名">&nbsp;&nbsp;<button class="rename-yes">确定</button>&nbsp;&nbsp;<button class="rename-no">取消</button>';
+            var baseUrl = $(this).attr('base-url');
+            $(this).find('label').after(item);
+            $(this).find('.rename-no').on('click',function(){
+                $(this).parent().find(':text').remove();
+                $(this).parent().find('.rename-yes').remove();
+                $(this).remove();
+            });
+            $(this).find('.rename-yes').on('click',function(){
+                var newName = $(this).parent().find(':text').val();
+                var item1 = $(this).parent().find(':text');
+                var item2 = $(this).parent().find('.rename-no');
+                var item3 = $(this);
+                var item4 = $(this).parent().find('label').children('.span-file-name');
+                if(newName != ""){
+                    var url ='index.php?r=file/rename';
+                    var recordId = $(this).parent().find(':checkbox').val();
+                    $.ajax({
+                        url:url,
+                        type:'post',
+                        data:{'record_id':recordId,'new_name':newName},
+                        dataType:'json',
+                        success:function(result){
+                            if(result['code'] == '0'){
+                                item1.remove();
+                                item2.remove();
+                                item3.remove();
+                                item4.text(result['file_name']);
+                            }
+                        }
+                    });
+
+                }else{
+                    alert("请输入新文件名!");
+                }
+            });
         });
     }
 
@@ -318,7 +361,16 @@ $(function(){
             dataType:'json',
             success:function(result){
                 //console.log(result[0]);
-                location.reload();
+                $(':checkbox').each(function(){
+                    if($(this).is(':checked')){
+                        $(this).parent().parent().parent().remove();
+                        var disk = result['disk'];
+                        var present = ((disk['capacity']-disk['available_size'])/disk['capacity'])*100;
+                        $('#webdb-size > div').css('width',present+"%");
+                        $('#p-capacity').text(Math.round((disk['capacity']/(1024*1024*1024))*100)/100);
+                        $('#p-available').text(Math.round((disk['available_size']/(1024*1024*1024))*100)/100);
+                    }
+                });
             }
         });
     });
@@ -334,6 +386,10 @@ $(function(){
         });
         $(this).find('.rename-yes').on('click',function(){
             var newName = $(this).parent().find(':text').val();
+            var item1 = $(this).parent().find(':text');
+            var item2 = $(this).parent().find('.rename-no');
+            var item3 = $(this);
+            var item4 = $(this).parent().find('label').children('.span-file-name');
             if(newName != ""){
                 var url = baseUrl + '/index.php?r=file/rename';
                 var recordId = $(this).parent().find(':checkbox').val();
@@ -344,7 +400,10 @@ $(function(){
                     dataType:'json',
                     success:function(result){
                         if(result['code'] == '0'){
-                            location.reload();
+                            item1.remove();
+                            item2.remove();
+                            item3.remove();
+                            item4.text(result['file_name']);
                         }
                     }
                 });

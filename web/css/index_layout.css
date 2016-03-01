@@ -87,7 +87,12 @@ abbr, acronym {
     box-shadow:inset  1px 1px 1px 1px #aaa;
 }
 
-#lr-bar li span.selected{
+#lr-bar a{
+    text-decoration: none;
+    color: black;
+}
+
+#lr-bar a li span.selected{
    color: #0088e4;
 }
 
