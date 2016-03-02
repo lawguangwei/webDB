@@ -14,6 +14,7 @@ class LoginLog extends ActiveRecord{
     private $user_id;
     private $login_date;
     private $login_ip;
+    private $ip_address;
 
     public static function tableName(){
         return 'login_log';

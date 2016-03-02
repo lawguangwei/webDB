@@ -48,7 +48,7 @@ use yii\helpers\Html;
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><?=$_SESSION['user']['user_name']?> <span class="caret"></span></a>
                     <ul class="dropdown-menu">
-                        <li><a href="#">个人资料</a></li>
+                        <li><a href="<?=\yii\helpers\Url::base().'/index.php?r=user/person-info'?>">个人资料</a></li>
                         <li><a href="#">设置</a></li>
                         <li><a href="#">容量统计</a></li>
                         <li role="separator" class="divider"></li>

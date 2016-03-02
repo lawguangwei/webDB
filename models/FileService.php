@@ -323,4 +323,50 @@ class FileService{
         }
         return $files;
     }
+
+    public function typeSize(){
+        $conn = \Yii::$app->db;
+        $sql = 'select sum(file_size) as size from file_record where user_id="'.$_SESSION['user']['user_id'].'" and state="0" and extension in("jpg","jpeg","png","gif")';
+        $command = $conn->createCommand($sql);
+        $result = $command->queryOne();
+        if($result != null){
+            $typeSize['picture'] = $result['size'];
+        }else{
+            $typeSize['picture'] = 0;
+        }
+        $sql = 'select sum(file_size) as size from file_record where user_id="'.$_SESSION['user']['user_id'].'" and state="0" and extension in("txt","doc","ppt","xls","pdf","docx","xlsx","pptx")';
+        $command = $conn->createCommand($sql);
+        $result = $command->queryOne();
+        if($result != null){
+            $typeSize['word'] =  $result['size'];
+        }else{
+            $typeSize['word'] = 0;
+        }
+        $sql = 'select sum(file_size) as size from file_record where user_id="'.$_SESSION['user']['user_id'].'" and state="0" and extension in("mp3","wav","wma","ogg","ape","acc")';
+        $command = $conn->createCommand($sql);
+        $result = $command->queryOne();
+        if($result != null){
+            $typeSize['music'] =  $result['size'];
+        }else{
+            $typeSize['music'] = 0;
+        }
+        $sql = 'select sum(file_size) as size from file_record where user_id="'.$_SESSION['user']['user_id'].'" and state="0" and extension in("avi","rm","rmvb","mov","wmv","mp4","mkv","mpeg")';
+        $command = $conn->createCommand($sql);
+        $result = $command->queryOne();
+        if($result != null){
+            $typeSize['film'] =  $result['size'];
+        }else{
+            $typeSize['film'] = 0;
+        }
+        $sql = 'select sum(file_size) as size from file_record where user_id="'.$_SESSION['user']['user_id'].'" and state="0" and extension not in("mp3","wav","wma","ogg","ape","acc","jpg","jpeg","png","gif",
+            "txt","doc","ppt","xls","pdf","docx","xlsx","pptx","avi","rm","rmvb","mov","wmv","mp4","mkv","mpeg")';
+        $command = $conn->createCommand($sql);
+        $result = $command->queryOne();
+        if($result != null){
+            $typeSize['other'] =  $result['size'];
+        }else{
+            $typeSize['other'] = 0;
+        }
+        return $typeSize;
+    }
 }

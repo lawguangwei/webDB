@@ -1,0 +1,11 @@
+#person-info{
+    font-size: large;
+}
+
+.panel{
+    margin-top: 20px;
+}
+
+.panel-title a{
+    float: right;
+}

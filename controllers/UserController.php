@@ -10,7 +10,9 @@ namespace app\controllers;
 use app\components\LoginFilter;
 use app\models\FileRecord;
 use app\models\FileService;
+use app\models\LogService;
 use Yii;
+use yii\debug\models\search\Log;
 use yii\helpers\Url;
 use yii\web\Controller;
 use app\models\UserService;
@@ -151,5 +153,15 @@ class UserController extends Controller
             $result['exist'] = "0";
         }
         return json_encode($result);
+    }
+
+    public function actionPersonInfo(){
+        $this->layout = 'person_info';
+        $disk = Disk::findOne(['user_id'=>$_SESSION['user']['user_id']]);
+        $fileService = new FileService();
+        $typeSize = $fileService->typeSize();
+        $logService = new LogService();
+        $logs = $logService->getLoginLog();
+        return $this->render('person_info',['disk'=>$disk,'typeSize'=>$typeSize,'logs'=>$logs]);
     }
 }
