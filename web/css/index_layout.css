@@ -182,3 +182,11 @@ a{
     padding: 0;
     background: #eee;
 }
+
+.div-upload-item{
+    border:1px solid #bbbbbb;
+    box-shadow:2px 2px 2px  #999;
+    margin-bottom: 4px;
+    padding-bottomdd: 2px;
+    padding-top: 2px;
+}

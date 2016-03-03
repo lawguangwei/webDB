@@ -74,7 +74,7 @@ $(function(){
         var formData = new FormData($('#form-upload-file')[0]);
         var url = $(this).attr("url");
         formDatas.unshift(formData);
-        var item = '<div class="col-md-12">' +
+        var item = '<div class="col-md-12 div-upload-item">' +
             '<p class="col-md-12" style="word-break: break-all">'+$('#file-input').val()+'</p></div>';
         $('#upload-list-div').append(item);
         $('#file-input').val('');

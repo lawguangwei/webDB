@@ -122,4 +122,31 @@ class UserService{
         return false;
     }
 
+    public function modifyUserName($name){
+        $user = User::findOne(['user_id'=>$_SESSION['user']['user_id']]);
+        $user->user_name = $name;
+        if($user->save()){
+            $_SESSION['user'] = $user;
+            return 'success';
+        }else{
+            $errors = $user->errors;
+            return $errors;
+        }
+    }
+
+    public function modifyPassword($oldPass,$newPass){
+        $user = User::findOne(['user_id'=>$_SESSION['user']['user_id']]);
+        $oldPass = md5($oldPass);
+        if($user->user_password !=$oldPass){
+            return '1';
+        }
+        $user->user_password = md5($newPass);
+        if($user->save()){
+            return '0';
+        }else{
+            $errors = $user->errors;
+            return $errors;
+        }
+    }
+
 }

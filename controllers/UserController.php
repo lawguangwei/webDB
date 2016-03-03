@@ -164,4 +164,40 @@ class UserController extends Controller
         $logs = $logService->getLoginLog();
         return $this->render('person_info',['disk'=>$disk,'typeSize'=>$typeSize,'logs'=>$logs]);
     }
+
+    public function actionSetInfo(){
+        $this->layout = 'person_info';
+        return $this->render('set_info');
+    }
+
+    public function actionModifyInfo(){
+        $this->layout = 'person_info';
+        if(Yii::$app->request->isPost){
+            $newName = $_POST['user_name'];
+            $userService = new UserService();
+            $msg = $userService->modifyUserName($newName);
+            if($msg == 'success'){
+                return $this->redirect(Url::base().'/index.php?r=user/set-info');
+            }else{
+                return $this->render('set_info',['errors'=>$msg]);
+            }
+        }
+    }
+
+    public function actionModifyPassword(){
+        $this->layout = 'person_info';
+        if(Yii::$app->request->isPost){
+            $oldPass = $_POST['old_password'];
+            $newPass = $_POST['new_password'];
+            $userService = new UserService();
+            $msg = $userService->modifyPassword($oldPass,$newPass);
+            if($msg == '1'){
+                return $this->render('set_info',['msg'=>'原密码不正确']);
+            }
+            if($msg == '0'){
+                return $this->render('set_info',['msg'=>'密码修改成功']);
+            }
+            return $this->render('set_info',['errors'=>$msg]);
+        }
+    }
 }

@@ -49,8 +49,7 @@ use yii\helpers\Html;
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><?=$_SESSION['user']['user_name']?> <span class="caret"></span></a>
                     <ul class="dropdown-menu">
                         <li><a href="<?=\yii\helpers\Url::base().'/index.php?r=user/person-info'?>">个人资料</a></li>
-                        <li><a href="#">设置</a></li>
-                        <li><a href="#">容量统计</a></li>
+                        <li><a href="<?=\yii\helpers\Url::base().'/index.php?r=user/set-info'?>">设置</a></li>
                         <li role="separator" class="divider"></li>
                         <li><a href="<?=\yii\helpers\Url::base().'/index.php?r=user/logout'?>">退出登录</a></li>
                     </ul>
@@ -80,7 +79,6 @@ use yii\helpers\Html;
         </div>
         <div id='upload-list-div' class="col-md-12">
         </div>
-
     </div>
 
     <div id="content-panel" class="col-md-10">
@@ -125,7 +123,7 @@ use yii\helpers\Html;
             </div>
             <div class="modal-body">
                 <div class="container-fluid">
-                    <form id='form-mkdir' class="form-horizontal" action="<?=\yii\helpers\Url::base().'/index.php?r=file/mkdir'?>" method="post" enctype="multipart/form-data">
+                    <form id='form-mkdir' class="form-horizontal" action="<?=\yii\helpers\Url::base().'/index.php?r=file/mkdir'?>" method="post">
                         <input type="hidden" name="_csrf" value="<?=Yii::$app->request->csrfToken?>">
                         <div class="input-group col-md-12">
                             <label class="control-label col-md-2">文件夹名:</label>
