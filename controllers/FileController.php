@@ -74,18 +74,18 @@ class FileController extends Controller{
             $file = $_FILES['file']['tmp_name'];
 
             $fileService = new FileService();
-            $value = $fileService->uploadFile($fileName,$fileType,$fileSize,$file);
-            if($value == '1'){
+            $msg = $fileService->uploadFile($fileName,$fileType,$fileSize,$file);
+            if($msg == '1'){
                 $result['code'] = '1';
                 $result['msg'] = '空间不足';
-            }
-            if($value == '2'){
+            }else if($msg == '2'){
                 $result['code'] = '2';
                 $result['msg'] = '数据库错误';
+            }else{
+                $result['code'] = '0';
+                $result['msg'] = 'success';
+                $result['file'] = $msg;
             }
-
-            $result['code'] = 0;
-            $result['file'] = $value;
             $disk = Disk::find()->where(['user_id'=>$_SESSION['user']['user_id']])->asArray()->one();
             $result['disk'] =  $disk;
             echo json_encode($result);
@@ -214,7 +214,7 @@ class FileController extends Controller{
             $folder_id = $_POST['record_id'];
             $fileService = new FileService();
             $result['code'] = '0';
-            $result['info'] = $fileService->deleteFile($folder_id);
+            $result['info'] = $fileService->deleteFolder($folder_id);
             $result['disk'] = Disk::find()->where(['user_id'=>$_SESSION['user']['user_id']])->asArray()->one();
             return json_encode($result);
         }
@@ -258,24 +258,24 @@ class FileController extends Controller{
                 $files = array_unique($files);
                 $files = array_merge($files);
                 $fileServices = new FileService();
-                $code = $fileServices->pasteFiles($files);
-                if($code == 'success'){
+                $msg = $fileServices->pasteFiles($files);
+                if($msg == 'success'){
                     if($_SESSION['copy_option'] == 'copy'){
-                        $result['0'] = 'success';
+                        $result['msg'] = $msg;
                         unset($_SESSION['copy_files']);
                         unset($_SESSION['copy_option']);
                         return json_encode($result);
                     }
                     if($_SESSION['copy_option'] == 'cut'){
                         $msg = $fileServices->deleteFiles($files);
-                        $result['0'] = $msg;
+                        $result['msg'] = $msg;
                         unset($_SESSION['copy_files']);
                         unset($_SESSION['copy_option']);
                         return json_encode($result);
                     }
                 }else{
-                    $result['0'] = $code;
-                    echo json_encode($result);
+                    $result['msg'] = $msg;
+                    return json_encode($result);
                 }
             }
         }
@@ -331,6 +331,29 @@ class FileController extends Controller{
             $_SESSION['li_option'] = $type;
             return $this->render('select_type',['files'=>$files]);
         }
+    }
 
+    public function actionRecycle(){
+        $this->layout = 'user';
+        $fileService = new FileService();
+        $files =$fileService->recycleFiles();
+        return $this->render('recycle',['files'=>$files]);
+    }
+
+    public function actionRevert(){
+        if(Yii::$app->request->isPost){
+            $files = $_POST['files'];
+            $files = array_unique($files);
+            $files = array_merge($files);
+            $filesService = new FileService();
+            $result = $filesService->revertFiles($files);
+            switch($result){
+                case '0' : $data['code'] = '0';break;
+                case '1' : $data['code'] = '1';$data['msg'] = '还原错误';break;
+                case '2' : $data['code'] = '2';$data['msg'] = '空间不足';break;
+                default : $data['code'] = '1';$data['msg'] = '还原错误';
+            }
+            return json_encode($data);
+        }
     }
 }

@@ -57,6 +57,7 @@
                     <a id="copy-btn" class="file-option1" url="<?=\yii\helpers\Url::base().'/index.php?r=file/copy-files'?>"hidden>复制</a>
                     <a id="cut-btn" class="file-option1" url="<?=\yii\helpers\Url::base().'/index.php?r=file/copy-files'?>"hidden>剪切</a>
                     <a id='delete-files-btn'class="file-option1" url="<?=\yii\helpers\Url::base().'/index.php?r=file/delete-files'?>"hidden>删除</a>
+                    <a id="paste-btn" class="file-option2" url="<?=\yii\helpers\Url::base().'/index.php?r=file/paste-files'?>">粘贴</a>
                     <?php
                     if(isset($_SESSION['copy_files'])){ ?>
                         <a id="paste-btn" class="file-option2" url="<?=\yii\helpers\Url::base().'/index.php?r=file/paste-files'?>">粘贴</a>

@@ -10,8 +10,8 @@ PersonAsset::register($this);
 $this->title = '用户信息';
 ?>
 
-<div class="col-md-8 col-md-offset-2">
-    <div class="panel panel-default">
+<div class="col-md-8 col-md-offset-2 well">
+    <div class="panel panel-danger">
         <div class="panel-heading">
             <h3 class="panel-title">账户信息<a class="btn btn-default" href="<?=\yii\helpers\Url::base().'/index.php?r=user/index'?>">返回</a></h3>
         </div>
@@ -47,26 +47,24 @@ $this->title = '用户信息';
         <div class="panel-heading">
             <h3 class="panel-title">登录记录<a class="btn btn-default" href="<?=\yii\helpers\Url::base().'/index.php?r=user/index'?>">返回</a></h3>
         </div>
-        <div id='log-log' class="panel-body">
-            <table class="table table-hover">
-                <tr class="warning">
-                    <td>#</td>
-                    <td>登录ip</td>
-                    <td>登录地址</td>
-                    <td>登录日期</td>
+        <table class="table table-hover">
+            <tr class="warning">
+                <td>#</td>
+                <td>登录ip</td>
+                <td>登录地址</td>
+                <td>登录日期</td>
+            </tr>
+            <?php
+            $i =1;
+            foreach($logs as $log){?>
+                <tr>
+                    <td><?=$i++?></td>
+                    <td><?=$log['login_ip']?></td>
+                    <td><?=$log['ip_address']?></td>
+                    <td><?=$log['login_date']?></td>
                 </tr>
-                <?php
-                $i =1;
-                foreach($logs as $log){?>
-                    <tr>
-                        <td><?=$i++?></td>
-                        <td><?=$log['login_ip']?></td>
-                        <td><?=$log['ip_address']?></td>
-                        <td><?=$log['login_date']?></td>
-                    </tr>
-                <?php }
-                ?>
-            </table>
-        </div>
+            <?php }
+            ?>
+        </table>
     </div>
 </div>

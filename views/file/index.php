@@ -60,6 +60,8 @@
                     <?php
                     if(isset($_SESSION['copy_files'])){ ?>
                         <a id="paste-btn" class="file-option2" url="<?=\yii\helpers\Url::base().'/index.php?r=file/paste-files'?>">粘贴</a>
+                    <?php }else{?>
+                        <a id="paste-btn" class="file-option2" url="<?=\yii\helpers\Url::base().'/index.php?r=file/paste-files'?>" hidden>粘贴</a>
                     <?php }
                     ?>
                 </td>

@@ -7,71 +7,73 @@
  */
 namespace app\models;
 
-use Faker\Provider\File;
 use yii\base\Exception;
+use yii\debug\models\search\Log;
 
 class FileService{
     public function uploadFile($fileName,$fileType,$fileSize,$file){
-        $userFile = new UserFile();
-        $userFile->filename = $fileName;
-        $userFile->filetype = $fileType;
-        $userFile->file = $file;
+
+        $userFile = UserFile::findOne(['md5'=>md5_file($file)]);
+        if($userFile == null){
+            $userFile = new UserFile();
+            $userFile->filename = $fileName;
+            $userFile->filetype = $fileType;
+            $userFile->file = $file;
+            if(!$userFile->save()){
+                return '2';
+            }
+        }
 
         $disk = Disk::findOne(['user_id'=>$_SESSION['user']['user_id']]);
 
 
         try{
-            if($userFile->save()){
+            $tran = \Yii::$app->db->beginTransaction();
+            $created_date = date('Y-m-d H:i:sa');
+            $user_id = $_SESSION['user']['user_id'];
+            $record_id = md5($user_id.$fileName.$created_date);
 
-                $tran = \Yii::$app->db->beginTransaction();
-                $created_date = date('Y-m-d H:i:sa');
-                $user_id = $_SESSION['user']['user_id'];
-                $record_id = md5($user_id.$fileName.$created_date);
+            $fileRecord = new FileRecord();
+            $fileRecord->f_record_id = $record_id;
+            $fileRecord->f_record_type = "1";
+            $fileRecord->file_id = $userFile->_id;
+            $fileRecord->user_id = $user_id;
+            $fileRecord->file_name = $fileName;
+            $tmps = explode('.' , $fileName);
+            if(count($tmps) == 1){
+                $fileRecord->extension = '';
+            }else{
+                $fileRecord->extension = end($tmps);
+            }
+            $fileRecord->file_type = $fileType;
+            $fileRecord->file_size = $fileSize;
+            $fileRecord->parent_id = $_SESSION['current_id'];
 
-                $fileRecord = new FileRecord();
-                $fileRecord->f_record_id = $record_id;
-                $fileRecord->f_record_type = "1";
-                $fileRecord->file_id = $userFile->_id;
-                $fileRecord->user_id = $user_id;
-                $fileRecord->file_name = $fileName;
-                $tmps = explode('.' , $fileName);
-                if(count($tmps) == 1){
-                    $fileRecord->extension = '';
-                }else{
-                    $fileRecord->extension = end($tmps);
+            $fileRecord->upload_date = $created_date;
+            $fileRecord->state = "0";
+
+            if($fileRecord->save()){
+                $disk->available_size = $disk->available_size - $fileSize;
+                if($disk->available_size < 0){
+                    return '1';                 //空间不足
+                    $tran->rollBack();
                 }
-                $fileRecord->file_type = $fileType;
-                $fileRecord->file_size = $fileSize;
-                $fileRecord->parent_id = $_SESSION['current_id'];
-
-                $fileRecord->upload_date = $created_date;
-                $fileRecord->state = "0";
-
-                if($fileRecord->save()){
-                    $disk->available_size = $disk->available_size - $fileSize;
-                    if($disk->available_size < 0){
-                        return '1';                 //空间不足
-                        $tran->rollBack();
-                    }
-                    if($disk->save()){
-                        $parent_folder = FileRecord::findOne(['f_record_id'=>$_SESSION['current_id']]);
-                        while($parent_folder->parent_id != '0'){
-                            $parent_folder->file_size = $parent_folder->file_size + $fileSize;
-                            if($parent_folder->save()){
-                                $parent_folder = FileRecord::findOne(['f_record_id'=>$parent_folder->parent_id]);
-                            }else{
-                                $tran->rollBack();
-                                return 'error';
-                            }
+                if($disk->save()){
+                    $parent_folder = FileRecord::findOne(['f_record_id'=>$_SESSION['current_id']]);
+                    while($parent_folder->parent_id != '0'){
+                        $parent_folder->file_size = $parent_folder->file_size + $fileSize;
+                        if($parent_folder->save()){
+                            $parent_folder = FileRecord::findOne(['f_record_id'=>$parent_folder->parent_id]);
+                        }else{
+                            $tran->rollBack();
+                            return 'error';
                         }
-                        $tran->commit();
-                        return FileRecord::find()->where(['f_record_id'=>$record_id])->asArray()->one();
                     }
-                }else{
-                    return '2';      //数据库错误
+                    $tran->commit();
+                    return FileRecord::find()->where(['f_record_id'=>$record_id])->asArray()->one();
                 }
             }else{
-                return '2';
+                return '2';      //数据库错误
             }
         }catch (Exception $e){
             return '2';
@@ -115,6 +117,7 @@ class FileService{
     public function deleteFolder($folderId){
         $folder = FileRecord::findOne(['f_record_id'=>$folderId]);
         $childs = FileRecord::findAll(['parent_id'=>$folderId]);
+        $tran = \Yii::$app->db->beginTransaction();
         foreach($childs as $child){
             if($child->f_record_type == '2'){
                 $this->deleteFolder($child->f_record_id);
@@ -124,8 +127,18 @@ class FileService{
             }
         }
         $folder->state = '1';
-        $folder->save();
-        return 'success';
+        if($folder->save()){
+            $logService = new LogService();
+            if($logService->removeLog($folder->f_record_id) == 'success'){
+                $tran->commit();
+                return 'success';
+            }
+            $tran->rollBack();
+            return 'error';
+        }else{
+            $tran->rollBack();
+            return 'error';
+        }
     }
 
     public function deleteFile($recordId){
@@ -133,7 +146,6 @@ class FileService{
         $fileSize = $fileRecord->file_size;
         $disk = Disk::findOne(['user_id'=>$_SESSION['user']['user_id']]);
         $tran = \Yii::$app->db->beginTransaction();
-
         try{
             $fileRecord->state = '1';
             if($fileRecord->save()){
@@ -147,6 +159,11 @@ class FileService{
                         $tran->rollBack();
                         return 'error';
                     }
+                }
+                $logService = new LogService();
+                if($logService->removeLog($fileRecord->f_record_id) != 'success'){
+                    $tran->rollBack();
+                    return 'error';
                 }
                 if($disk->save()){
                     $tran->commit();
@@ -178,7 +195,7 @@ class FileService{
                         $parent_folder = FileRecord::findOne(['f_record_id'=>$parent_folder->parent_id]);
                     }else{
                         $tran->rollBack();
-                        return 'error';
+                        return '服务器错误';                                                                 //修改父目录信息错误
                     }
                 }
                 if($file->f_record_type == '2'){
@@ -188,16 +205,16 @@ class FileService{
                     $this->pasteFile($record_id,$_SESSION['current_id']);
                 }
             }
+            if($disk->save()){
+                $tran->commit();
+                return 'success';
+            }
+            $tran->rollBack();
+            return '服务器错误';                                                                                //磁盘修改错误
         }catch (Exception $e){
             $tran->rollBack();
-            return $e->getMessage();
+            return $e->getMessage();                                                                        //数据库错误
         }
-        if($disk->save()){
-            $tran->commit();
-            return 'success';
-        }
-        $tran->rollBack();
-        return 'error2';
     }
 
     public function pasteFolder($record_id,$parent_id){
@@ -367,6 +384,81 @@ class FileService{
         }else{
             $typeSize['other'] = 0;
         }
+        $conn->close();
         return $typeSize;
+    }
+
+    public function adminStatisticsSize(){
+        $conn = \Yii::$app->db;
+        $sql = 'select str_to_date(upload_date,"%Y-%m-%d") as date,sum(file_size) as size from file_record where state = "0" group by to_days(upload_date) order by upload_date desc limit 365';
+        $command = $conn->createCommand($sql);
+        $result = $command->queryAll();
+        $data['add'] = $result;
+        $sql = 'select str_to_date(upload_date,"%Y-%m-%d") as date,sum(file_size) as size from file_record where state = "1" group by to_days(upload_date) order by upload_date desc limit 365';
+        $command = $conn->createCommand($sql);
+        $result = $command->queryAll();
+        $data['delete'] = $result;
+        $conn->close();
+        return $data;
+    }
+
+    public function countFile(){
+        $conn = \Yii::$app->db;
+        $sql = 'select count(*) as num from file_record where state="0"';
+        $command = $conn->createCommand($sql);
+        $result = $command->queryAll();
+        $conn->close();
+        return $result['0']['num'];
+    }
+
+    public function countFileSize(){
+        $result = UserFile::find()->sum('length');
+        return $result;
+    }
+
+    public function recycleFiles(){
+        $conn = \Yii::$app->db;
+        $sql = 'select * from file_record inner join remove_log on file_record.f_record_id = remove_log.f_record_id where
+          f_record_type = "1" and file_record.state="1" and file_record.user_id="'.$_SESSION['user']['user_id'].'"
+          and to_days(now()) - TO_DAYS(remove_log.remove_date) < 10 order by remove_log.remove_date desc ';
+        $command = $conn->createCommand($sql);
+        $result = $command->queryAll();
+        $conn->close();
+        return $result;
+    }
+
+    public function revertFiles($files){
+        $tran = \Yii::$app->db->beginTransaction();
+        try{
+            foreach($files as $recordId){
+                $fileRecord = FileRecord::findOne(['f_record_id'=>$recordId]);
+                $disk = Disk::findOne(['user_id'=>$_SESSION['user']['user_id']]);
+                if($disk->available_size < $fileRecord->file_size){
+                    $tran->rollBack();
+                    return '2';                                                                             //空间不足
+                }
+                $fileRecord->state = '0';
+                $fileRecord->parent_id = $_SESSION['user']['user_id'];
+                if(!$fileRecord->save()){
+                    $tran->rollBack();
+                    return '1';                                                                             //还原错误
+                }
+                $disk->available_size = $disk->available_size - $fileRecord->file_size;
+                if(!$disk->save()){
+                   $tran->rollBack();
+                    return '1';                                                                             //还原错误
+                }
+                $removeLog = RemoveLog::findOne(['f_record_id'=>$fileRecord->f_record_id]);
+                if(!$removeLog->delete()){
+                    $tran->rollBack();
+                    return '1';                                                                             //还原错误
+                }
+            }
+            $tran->commit();
+            return '0';
+        }catch (Exception $e){
+            $tran->rollBack();
+            return '1';
+        }
     }
 }

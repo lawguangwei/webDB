@@ -69,7 +69,7 @@ use yii\helpers\Html;
             <a href="<?=\yii\helpers\Url::base().'/index.php?r=file/select-file&type=music'?>"><li id="li-music"><span class="glyphicon glyphicon-music"></span>&nbsp;&nbsp;音乐</li></a>
             <a href="<?=\yii\helpers\Url::base().'/index.php?r=file/select-file&type=other'?>"><li id="li-other"><span class="glyphicon glyphicon-option-horizontal"></span>&nbsp;&nbsp;其它</li></a>
             <li role="separator" class="divider"></li>
-            <a href="<?=\yii\helpers\Url::base().'/index.php?r=file/select-file&type=delete'?>"><li id="li-delete"><span class="glyphicon glyphicon-trash"></span>&nbsp;&nbsp;回收站</li></a>
+            <a href="<?=\yii\helpers\Url::base().'/index.php?r=file/recycle'?>"><li id="li-delete"><span class="glyphicon glyphicon-trash"></span>&nbsp;&nbsp;回收站</li></a>
             <li role="separator" class="divider"></li>
         </ul>
 

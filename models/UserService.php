@@ -78,9 +78,10 @@ class UserService{
                     $fileRecord->file_id = '0';               //目录类型文件id为0
                     $fileRecord->user_id = $userId;
                     $fileRecord->file_name = '我的网盘';
+                    $fileRecord->extension = '';
+                    $fileRecord->file_type = 'folder';
                     $fileRecord->file_size = 0;
                     $fileRecord->parent_id = '0';               //跟目录上级目录为0
-                    $fileRecord->parent_path = '0';
                     $fileRecord->upload_date = $createDate;
                     $fileRecord->state = '0';                //记录状态0为正常
                     if($fileRecord->save()){
@@ -88,24 +89,20 @@ class UserService{
                         $_SESSION['user'] = $user;
                         return 'success';
                     }else{
-                        $errors = $fileRecord->errors;
                         $tran->rollBack();
-                        return $errors;
+                        return $fileRecord->errors;
                     }
                 }else{
-                    $errors = $disk->errors;
                     $tran->rollBack();
-                    return $errors;
+                    return $disk->errors;
                 }
             }else{
-                $errors = $user->errors;
                 $tran->rollBack();
-                return $errors;
+                return $user->errors;
             }
         }catch (Exception $e){
-            $errors = $e->getMessage();
             $tran->rollBack();
-            return $errors;
+            return $e->errors;
         }
     }
 
@@ -149,4 +146,59 @@ class UserService{
         }
     }
 
+    public function statisticsUser(){
+        $conn = \Yii::$app->db;
+        $sql = 'select str_to_date(create_date,"%Y-%m-%d") as date,count(*) as num from user group by to_days(create_date) order by create_date desc limit 120';
+        $command = $conn->createCommand($sql);
+        $data = $command->queryAll();
+        $conn->close();
+        return $data;
+    }
+
+    public function countUser(){
+        $conn = \Yii::$app->db;
+        $sql = 'select count(*) as num from user where state="0"';
+        $command = $conn->createCommand($sql);
+        $result = $command->queryAll();
+        $conn->close();
+        return $result['0']['num'];
+    }
+
+    public function setUser($userEmail,$info){
+        $user = User::findOne(['user_email'=>$userEmail]);
+        if($user->state == '0'){
+            $flag = false;
+            $user->state = '1';
+        }else{
+            $flag = true;
+            $user->state = '0';
+        }
+        $tran =\Yii::$app->db->beginTransaction();
+        if($user->save()){
+            $logService = new LogService();
+            if($logService->disableUser($user->user_id,$info,$flag) == 'success'){
+                $tran->commit();
+                return 'success';
+            }
+        }
+        $tran->rollBack();
+        return 'error';
+    }
+
+    public function setUserSize($userEmail,$size,$info){
+        $user = User::findOne(['user_email'=>$userEmail]);
+        $disk = Disk::findOne(['user_id'=>$user->user_id]);
+        $disk->capacity = $disk->capacity+$size*(1024*1024*1024);
+        $disk->available_size = $disk->available_size + $size*(1024*1024*1024);
+        $tran =\Yii::$app->db->beginTransaction();
+        if($disk->save()){
+            $logService = new LogService();
+            if($logService->setUserSize($user->user_id,$info) == 'success'){
+                $tran->commit();
+                return 'success';
+            }
+        }
+        $tran->rollBack();
+        return 'error';
+    }
 }

@@ -100,6 +100,7 @@ class UserController extends Controller
      */
     public function actionLogout(){
         unset($_SESSION['user']);
+        Yii::$app->session->close();
         return $this->redirect(Url::base().'/index.php?r=user/login');
     }
 
