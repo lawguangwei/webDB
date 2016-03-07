@@ -133,4 +133,42 @@ class LogService{
         $conn->close();
         return $result;
     }
+
+    public function downloadLog($fileId){
+        $log = new DownloadLog();
+        $log->d_log_id = md5($fileId.$_SESSION['user']['user_id'].date('Y-m-d H:i:s'));
+        $log->user_id = $_SESSION['user']['user_id'];
+        $log->file_id = $fileId;
+        $log->download_date = date('Y-m-d H:i:s');
+
+        if($log->save()){
+            return 'success';
+        }else{
+            return $log->errors;
+        }
+    }
+
+    public function mostDownFiles(){
+        $conn = \Yii::$app->db;
+        $sql = 'select file_id,count(*) as num from download_log group by file_id order by num desc limit 20';
+        $command = $conn->createCommand($sql);
+        $data = $command->queryAll();
+        for($i=0;$i<count($data);$i++){
+            $file = UserFile::findOne($data[$i]['file_id']);
+            $data[$i]['file_type'] = $file->filetype;
+        }
+        return $data;
+    }
+
+    public function mostUserFiles(){
+        $conn = \Yii::$app->db;
+        $sql = 'select file_id,count(distinct user_id) as num from download_log group by file_id order by num desc limit 20';
+        $command = $conn->createCommand($sql);
+        $data = $command->queryAll();
+        for($i=0;$i<count($data);$i++){
+            $file = UserFile::findOne($data[$i]['file_id']);
+            $data[$i]['file_type'] = $file->filetype;
+        }
+        return $data;
+    }
 }

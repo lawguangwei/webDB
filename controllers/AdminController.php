@@ -102,6 +102,7 @@ class AdminController extends Controller{
         $data['user'] = $userService->countUser();
         $data['file_num'] = $fileService->countFile();
         $data['file_size'] = $fileService->countFileSize();
+
         return json_encode($data);
 
     }
@@ -176,4 +177,17 @@ class AdminController extends Controller{
             return json_encode($data);
         }
     }
+
+    public function actionMostDownFiles(){
+        $logService = new LogService();
+        $data = $logService->mostDownFiles();
+        return json_encode($data);
+    }
+
+    public function actionMostUserFiles(){
+        $logService = new LogService();
+        $data = $logService->mostUserFiles();
+        return json_encode($data);
+    }
+
 }

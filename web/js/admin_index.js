@@ -20,6 +20,8 @@ $(function () {
 
     setBasicInfo();
     setAdminLoginLogs();
+    setTableFile1();
+    setTableFile2();
 
     $.ajax({
         type:'get',
@@ -385,5 +387,50 @@ function setUserManageLog(logs,admin){
         $('.tr-um-user').on('dblclick',function(){
             alert($(this).attr('info'));
         })
+    });
+}
+
+function setTableFile1(){
+    $.ajax({
+        type:'get',
+        url:'index.php?r=admin/most-down-files',
+        data:{},
+        dataType:'json',
+        success:function(data){
+            var i=1;
+            data.forEach(function(item){
+                var content = '<tr>' +
+                    '<td>'+ i++ +'</td>' +
+                    '<td>'+item['file_id']+'</td>' +
+                    '<td>'+item['file_type']+'</td>' +
+                    '<td>'+item['num']+'</td>' +
+                    '<td><a class="text-success" style="cursor: pointer">下载</a><a class="text-danger" style="cursor: pointer">禁用</a></td>' +
+                    '</tr>';
+
+                $('#table-file-1').append(content);
+            });
+        }
+    });
+}
+
+function setTableFile2(){
+    $.ajax({
+        type:'get',
+        url:'index.php?r=admin/most-user-files',
+        data:{},
+        dataType:'json',
+        success:function(data){
+            var i=1;
+            data.forEach(function (item) {
+                var content = '<tr>' +
+                    '<td>'+ i++ +'</td>' +
+                    '<td>'+item['file_id']+'</td>' +
+                    '<td>'+item['file_type']+'</td>' +
+                    '<td>'+item['num']+'</td>' +
+                    '<td><a class="text-success" style="cursor: pointer">下载</a><a class="text-danger" style="cursor: pointer">禁用</a></td>' +
+                    '</tr>';
+                $('#table-file-2').append(content);
+            })
+        }
     });
 }

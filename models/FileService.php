@@ -18,6 +18,7 @@ class FileService{
             $userFile = new UserFile();
             $userFile->filename = $fileName;
             $userFile->filetype = $fileType;
+            $userFile->filesize = $fileSize;
             $userFile->file = $file;
             if(!$userFile->save()){
                 return '2';
@@ -412,7 +413,7 @@ class FileService{
     }
 
     public function countFileSize(){
-        $result = UserFile::find()->sum('length');
+        $result = UserFile::find()->sum('filesize');
         return $result;
     }
 

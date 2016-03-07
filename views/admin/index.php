@@ -104,14 +104,12 @@
             <div class="panel-body">
                 <div id="div-query-user" class="col-md-12">
                     <div class="col-md-12">
-                        <div class="col-md-4 col-md-offset-3">
+                        <div class="col-md-4">
                             <input type="text" id="input-email" class="form-control" placeholder="输入用户账号">
                         </div>
-                        <div class="col-md-4">
-                            <button id="btn-query-user" class="btn btn-success">查询</button>
-                            <button class="btn btn-success user-option" data-toggle="modal" data-target="#modal-set-user">禁用/启用</button>
-                            <button class="btn btn-success user-option" data-toggle="modal" data-target="#modal-set-size">空间升级</button>
-                        </div>
+                        <button id="btn-query-user" class="btn btn-success">查询</button>
+                        <button class="btn btn-success user-option" data-toggle="modal" data-target="#modal-set-user">禁用/启用</button>
+                        <button class="btn btn-success user-option" data-toggle="modal" data-target="#modal-set-size">空间升级</button>
                     </div>
                     <div id="div-user-info" class="col-md-12" style="margin-top: 8px">
                         <div class="col-md-6">
@@ -153,7 +151,68 @@
             </div>
         </div>
     </div>
+    <div class="panel panel-default">
+        <div class="panel-heading" role="tab" id="headingManageFile">
+            <h4 class="panel-title">
+                <a class="collapsed" role="button" data-toggle="collapse" data-parent="#admin-index" href="#manage-file" aria-expanded="true" aria-controls="manage-file">
+                    文件管理
+                </a>
+            </h4>
+        </div>
+        <div id="manage-file" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingManageFile">
+            <div class="panel-body">
+                <ul class="nav nav-tabs" role="tablist">
+                    <li role="presentation" class="active"><a href="#file-1" aria-controls="user-1" role="tab" data-toggle="tab">最多次下载文件</a></li>
+                    <li role="presentation"><a href="#file-2" aria-controls="profile" role="tab" data-toggle="tab">最多人下载文件</a></li>
+                    <li role="presentation"><a href="#file-3" aria-controls="profile" role="tab" data-toggle="tab">已处理文件</a></li>
+                </ul>
+
+                <!-- Tab panes -->
+                <div class="tab-content">
+                    <div role="tabpanel" class="tab-pane active" id="file-1">
+                        <table id="table-file-1" class="table table-striped">
+                            <tr>
+                                <td>#</td>
+                                <td>文件id</td>
+                                <td>文件类型</td>
+                                <td>下载次数</td>
+                                <td></td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div role="tabpanel" class="tab-pane" id="file-2">
+                        <table id="table-file-2" class="table table-striped">
+                            <tr>
+                                <td>#</td>
+                                <td>文件id</td>
+                                <td>文件类型</td>
+                                <td>人数</td>
+                                <td></td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div role="tabpanel" class="tab-pane" id="file-3">
+                        <table id="table-file-3" class="table table-striped">
+                            <tr>
+                                <td>#</td>
+                                <td>文件id</td>
+                                <td>文件类型</td>
+                                <td>下载次数</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+
+
+
+
+
+
 
 <!-- Modal -->
 <div class="modal fade" id="modal-set-user" tabindex="-1" role="dialog" aria-labelledby="setUserLabel">

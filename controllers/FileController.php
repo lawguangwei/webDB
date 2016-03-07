@@ -9,6 +9,7 @@ namespace app\controllers;
 
 use app\components\LoginFilter;
 use app\models\FileRecord;
+use app\models\LogService;
 use Faker\Provider\File;
 use Yii;
 use yii\helpers\Url;
@@ -100,13 +101,16 @@ class FileController extends Controller{
     public function actionGetfile(){
         if(Yii::$app->request->isGet){
             $file_id = $_GET['file_id'];
-            $model = UserFile::findOne($file_id);
+            $file = UserFile::findOne($file_id);
+
+            $logService = new LogService();
+            $logService->downloadLog($file_id);
 
 
-            Header ( "Content-type: ".$model->filetype );
+            Header ( "Content-type: ".$file->filetype );
             Header ( "Accept-Ranges: bytes" );
-            Header ( "Accept-Length: " .$model->length);
-            Header ( "Content-Disposition: attachment; filename=" . $model->filename);
+            Header ( "Accept-Length: " .$file->length);
+            Header ( "Content-Disposition: attachment; filename=" . $file->filename);
 
             /*
             Header("Content-Disposition:  attachment;  filename=".$model->filename);
@@ -116,7 +120,7 @@ class FileController extends Controller{
             header('Expires:0');
             header('Content-Type:application-x/force-download');*/
 
-            $fp = $model->file->getResource();
+            $fp = $file->file->getResource();
             fseek($fp,0);
             while(!feof($fp)){
                 set_time_limit(0);
