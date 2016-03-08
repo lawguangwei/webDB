@@ -384,9 +384,9 @@ function setUserManageLog(logs,admin){
             '<td>'+log['create_date']+'</td>' +
             '</tr>';
         $('#table-um-user').append(content);
-        $('.tr-um-user').on('dblclick',function(){
-            alert($(this).attr('info'));
-        })
+    });
+    $('.tr-um-user').on('dblclick',function(){
+        alert($(this).attr('info'));
     });
 }
 
@@ -398,16 +398,32 @@ function setTableFile1(){
         dataType:'json',
         success:function(data){
             var i=1;
+            $('.tr-file-1').remove();
             data.forEach(function(item){
-                var content = '<tr>' +
+                var content = '<tr class="tr-file-1">' +
                     '<td>'+ i++ +'</td>' +
-                    '<td>'+item['file_id']+'</td>' +
-                    '<td>'+item['file_type']+'</td>' +
+                    '<td class="td-file-id">'+item['file_id']+'</td>' +
+                    '<td class="td-file-type">'+item['file_type']+'</td>' +
+                    '<td class="td-file-size">'+item['file_size']+'MB</td>' +
                     '<td>'+item['num']+'</td>' +
-                    '<td><a class="text-success" style="cursor: pointer">下载</a><a class="text-danger" style="cursor: pointer">禁用</a></td>' +
+                    '<td>' +
+                    '<a class="text-success btn-download" file-id="'+item['file_id']+'" style="cursor: pointer">下载</a>' +
+                    '<a class="text-danger btn-disable-file" style="cursor: pointer" data-toggle="modal" data-target="#modal-set-file">禁用</a>' +
+                    '</td>' +
                     '</tr>';
-
                 $('#table-file-1').append(content);
+            })
+            $('.btn-download').off('click');
+            $('.btn-download').on('click',function(){
+                var file_id = $(this).attr('file-id');
+                //$('#download-id').val(file_id);
+                window.open('index.php?r=admin/getfile&file_id='+file_id);
+            });
+            $('.btn-disable-file').off('click');
+            $('.btn-disable-file').on('click',function(){
+                $('#p-file-id').text($(this).parent().parent().find('.td-file-id').text())
+                $('#p-file-type').text($(this).parent().parent().find('.td-file-type').text());
+                $('#p-file-size').text($(this).parent().parent().find('.td-file-size').text());
             });
         }
     });
@@ -421,16 +437,34 @@ function setTableFile2(){
         dataType:'json',
         success:function(data){
             var i=1;
+            $('.tr-file-2').remove();
             data.forEach(function (item) {
-                var content = '<tr>' +
+                var content = '<tr class="tr-file-2">' +
                     '<td>'+ i++ +'</td>' +
-                    '<td>'+item['file_id']+'</td>' +
-                    '<td>'+item['file_type']+'</td>' +
+                    '<td class="td-file-id">'+item['file_id']+'</td>' +
+                    '<td class="td-file-type">'+item['file_type']+'</td>' +
+                    '<td class="td-file-size">'+item['file_size']+'MB</td>' +
                     '<td>'+item['num']+'</td>' +
-                    '<td><a class="text-success" style="cursor: pointer">下载</a><a class="text-danger" style="cursor: pointer">禁用</a></td>' +
+                    '<td>' +
+                    '<a class="text-success btn-download" file-id="'+item['file_id']+'" style="cursor: pointer">下载</a>' +
+                    '<a class="text-danger btn-disable-file" style="cursor: pointer"  data-toggle="modal" data-target="#modal-set-file">禁用</a>' +
+                    '</td>' +
                     '</tr>';
                 $('#table-file-2').append(content);
             })
+            $('.btn-download').off('click');
+            $('.btn-download').on('click',function(){
+                var file_id = $(this).attr('file-id');
+                //$('#download-id').val(file_id);
+                window.open('index.php?r=admin/getfile&file_id='+file_id);
+            });
+            $('.btn-disable-file').off('click');
+            $('.btn-disable-file').on('click',function(){
+                $('#p-file-id').text($(this).parent().parent().find('.td-file-id').text())
+                $('#p-file-type').text($(this).parent().parent().find('.td-file-type').text());
+                $('#p-file-size').text($(this).parent().parent().find('.td-file-size').text());
+            });
         }
     });
 }
+

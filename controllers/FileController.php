@@ -103,6 +103,7 @@ class FileController extends Controller{
             $file_id = $_GET['file_id'];
             $file = UserFile::findOne($file_id);
 
+
             $logService = new LogService();
             $logService->downloadLog($file_id);
 

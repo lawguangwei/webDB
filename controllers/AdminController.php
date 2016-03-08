@@ -19,7 +19,7 @@ use yii\debug\models\search\Log;
 use yii\helpers\Url;
 use yii\web\Controller;
 use app\components\AdminLoginFilter;
-
+use app\models\UserFile;
 if(!Yii::$app->session->open()){
     Yii::$app->session->open();
 }
@@ -188,6 +188,45 @@ class AdminController extends Controller{
         $logService = new LogService();
         $data = $logService->mostUserFiles();
         return json_encode($data);
+    }
+
+    public function actionGetfile(){
+        if(Yii::$app->request->isGet){
+            $file_id = $_GET['file_id'];
+            $file = UserFile::findOne($file_id);
+
+            Header ( "Content-type: ".$file->filetype );
+            Header ( "Accept-Ranges: bytes" );
+            Header ( "Accept-Length: " .$file->length);
+            Header ( "Content-Disposition: attachment; filename=" . $file->filename);
+
+            /*
+            Header("Content-Disposition:  attachment;  filename=".$model->filename);
+            header("Content-Transfer-Encoding:binary");
+            header('Content-Length:'.$model->filesize);
+            header('Content-type:'.$model->filetype);
+            header('Expires:0');
+            header('Content-Type:application-x/force-download');*/
+
+            $fp = $file->file->getResource();
+            fseek($fp,0);
+            while(!feof($fp)){
+                set_time_limit(0);
+                echo(fread($fp,1024));
+                flush();
+                ob_flush();
+            }
+            fclose($fp);
+        }
+    }
+
+    public function setFile(){
+        if(Yii::$app->request->isPost){
+            $fileId = $_POST['file_id'];
+            $info = $_POST['info'];
+
+
+        }
     }
 
 }

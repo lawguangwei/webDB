@@ -175,6 +175,7 @@
                                 <td>#</td>
                                 <td>文件id</td>
                                 <td>文件类型</td>
+                                <td>文件大小</td>
                                 <td>下载次数</td>
                                 <td></td>
                             </tr>
@@ -186,6 +187,7 @@
                                 <td>#</td>
                                 <td>文件id</td>
                                 <td>文件类型</td>
+                                <td>文件大小</td>
                                 <td>人数</td>
                                 <td></td>
                             </tr>
@@ -197,7 +199,9 @@
                                 <td>#</td>
                                 <td>文件id</td>
                                 <td>文件类型</td>
+                                <td>文件大小</td>
                                 <td>下载次数</td>
+                                <td></td>
                             </tr>
                         </table>
                     </div>
@@ -265,6 +269,43 @@
                         <div class="col-md-12">
                             <label class="control-label">信息</label>
                             <textarea id="set-size-info" class="form-control" rows="3"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary" data-dismiss="modal">确定</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modal-set-file" tabindex="-1" role="dialog" aria-labelledby="setFileLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="setFileLabel">禁用文件</h4>
+            </div>
+            <div class="modal-body">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <label class="control-label">文件id</label>
+                            <p id="p-file-id" class="text-info p-file-id"></p>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="control-label">文件类型</label>
+                            <p id="p-file-type" class="text-info p-file-type"></p>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="control-label">文件大小</label>
+                            <p id="p-file-size" class="text-info p-file-size"></p>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="control-label">信息</label>
+                            <textarea id="set-file-info" class="form-control" rows="3"></textarea>
                         </div>
                     </div>
                 </div>

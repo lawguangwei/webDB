@@ -156,6 +156,7 @@ class LogService{
         for($i=0;$i<count($data);$i++){
             $file = UserFile::findOne($data[$i]['file_id']);
             $data[$i]['file_type'] = $file->filetype;
+            $data[$i]['file_size'] = round($file->filesize/(1024*1024),2);
         }
         return $data;
     }
@@ -168,6 +169,7 @@ class LogService{
         for($i=0;$i<count($data);$i++){
             $file = UserFile::findOne($data[$i]['file_id']);
             $data[$i]['file_type'] = $file->filetype;
+            $data[$i]['file_size'] = round($file->filesize/(1024*1024),2);
         }
         return $data;
     }
