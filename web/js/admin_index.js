@@ -77,6 +77,25 @@ $(function () {
         });
     });
 
+    $('#modal-set-file').find('.btn-primary').on('click',function(){
+        var fileId = $('#p-file-id').text();
+        var info = $('#set-file-info').val();
+        $.ajax({
+            type:'post',
+            url:'index.php?r=admin/set-file',
+            data:{'file_id':fileId,'info':info},
+            dataType:'json',
+            success:function(data){
+                if(data['code'] == '0'){
+                    setTableFile1();
+                    setTableFile2();
+                }else{
+                    alert(data['msg']);
+                }
+            }
+        });
+    });
+
     $("#statistics-btn-group button").on('click',function(){
         $('#statistics-btn-group button').removeClass('btn-success');
         $(this).addClass('btn-success');

@@ -220,12 +220,21 @@ class AdminController extends Controller{
         }
     }
 
-    public function setFile(){
+    public function actionSetFile(){
         if(Yii::$app->request->isPost){
             $fileId = $_POST['file_id'];
             $info = $_POST['info'];
 
+            $logService = new LogService();
+            $msg = $logService->logManageFile($fileId,$info);
+            if($msg == 'success'){
+                $data['code'] = '0';
+            }else{
+                $data['code'] = '1';
+                $data['msg'] = $msg;
+            }
 
+            return json_encode($data);
         }
     }
 

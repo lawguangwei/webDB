@@ -150,7 +150,9 @@ class LogService{
 
     public function mostDownFiles(){
         $conn = \Yii::$app->db;
-        $sql = 'select file_id,count(*) as num from download_log group by file_id order by num desc limit 20';
+        $sql = 'select file_id,count(*) as num from download_log
+                where file_id not in(select file_manage_log.file_id as file_id from file_manage_log)
+                group by file_id order by num desc limit 20';
         $command = $conn->createCommand($sql);
         $data = $command->queryAll();
         for($i=0;$i<count($data);$i++){
@@ -163,14 +165,48 @@ class LogService{
 
     public function mostUserFiles(){
         $conn = \Yii::$app->db;
-        $sql = 'select file_id,count(distinct user_id) as num from download_log group by file_id order by num desc limit 20';
+        $sql = 'select file_id,count(distinct user_id) as num from download_log
+                where file_id not in(select file_manage_log.file_id as file_id from file_manage_log)
+                group by file_id order by num desc limit 20';
         $command = $conn->createCommand($sql);
         $data = $command->queryAll();
         for($i=0;$i<count($data);$i++){
-            $file = UserFile::findOne($data[$i]['file_id']);
-            $data[$i]['file_type'] = $file->filetype;
-            $data[$i]['file_size'] = round($file->filesize/(1024*1024),2);
+            $fm_log = FileManageLog::findOne(['file_id'=>$data[$i]['file_id']]);
+            if($fm_log == null){
+                $file = UserFile::findOne($data[$i]['file_id']);
+                $data[$i]['file_type'] = $file->filetype;
+                $data[$i]['file_size'] = round($file->filesize/(1024*1024),2);
+            }else{
+                unset($data[$i]);
+                array_merge($data);
+            }
         }
         return $data;
+    }
+
+    public function logManageFile($fileId,$info){
+        $tran = \Yii::$app->db->beginTransaction();
+        $conn = \Yii::$app->db;
+        $sql = 'update file_record set state="2" where file_id="'.$fileId.'"';
+        $command = $conn->createCommand($sql);
+        if(!$command->execute()){
+            $tran->rollBack();
+            return 'error';
+        }
+        $log = new FileManageLog();
+        $log->fm_log_id = md5($fileId.$_SESSION['admin']['admin_id'].date('Y-m-d H:i:s'));
+        $log->file_id = $fileId;
+        $log->admin_id = $_SESSION['admin']['admin_id'];
+        $log->fm_manage_type = '1';                         //禁用文件
+        $log->fm_manage_info = $info;
+        $log->create_date = date('Y-m-d H:i:s');
+
+        if($log->save()){
+            $tran->commit();
+            return 'success';
+        }else{
+            $tran->rollBack();
+            return $log->errors;
+        }
     }
 }

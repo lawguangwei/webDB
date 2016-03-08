@@ -75,7 +75,9 @@ class FileController extends Controller{
             $file = $_FILES['file']['tmp_name'];
 
             $fileService = new FileService();
-            $msg = $fileService->uploadFile($fileName,$fileType,$fileSize,$file);
+            $userId = $_SESSION['user']['user_id'];
+            $currentId = $_SESSION['current_id'];
+            $msg = $fileService->uploadFile($fileName,$fileType,$fileSize,$file,$userId,$currentId);
             if($msg == '1'){
                 $result['code'] = '1';
                 $result['msg'] = '空间不足';
@@ -140,8 +142,9 @@ class FileController extends Controller{
     public function actionMkdir(){
         if(Yii::$app->request->isPost){
             $dirname = $_POST['dir-name'];
+            $currentId = $_SESSION['current_id'];
             $fileService = new FileService();
-            $fileService->mkdir($dirname);
+            $fileService->mkdir($dirname,$currentId);
             return $this->redirect(Yii::$app->request->referrer);
         }
     }
@@ -216,11 +219,12 @@ class FileController extends Controller{
      */
     public function actionDeleteFolder(){
         if(Yii::$app->request->isPost){
+            $userId = $_SESSION['user']['user_id'];
             $folder_id = $_POST['record_id'];
             $fileService = new FileService();
             $result['code'] = '0';
-            $result['info'] = $fileService->deleteFolder($folder_id);
-            $result['disk'] = Disk::find()->where(['user_id'=>$_SESSION['user']['user_id']])->asArray()->one();
+            $result['info'] = $fileService->deleteFolder($folder_id,$userId);
+            $result['disk'] = Disk::find()->where(['user_id'=>$userId])->asArray()->one();
             return json_encode($result);
         }
     }
@@ -262,8 +266,11 @@ class FileController extends Controller{
                 $files = $_SESSION['copy_files'];
                 $files = array_unique($files);
                 $files = array_merge($files);
+
+                $userId = $_SESSION['user']['user_id'];
+                $currentId = $_SESSION['current_id'];
                 $fileServices = new FileService();
-                $msg = $fileServices->pasteFiles($files);
+                $msg = $fileServices->pasteFiles($files,$userId,$currentId);
                 if($msg == 'success'){
                     if($_SESSION['copy_option'] == 'copy'){
                         $result['msg'] = $msg;
@@ -331,8 +338,9 @@ class FileController extends Controller{
         $this->layout = 'user';
         if(Yii::$app->request->isGet){
             $type = $_GET['type'];
+            $userId = $_SESSION['user']['user_id'];
             $fileSerivce = new FileService();
-            $files = $fileSerivce->selectFileByType($type);
+            $files = $fileSerivce->selectFileByType($type,$userId);
             $_SESSION['li_option'] = $type;
             return $this->render('select_type',['files'=>$files]);
         }
@@ -341,7 +349,8 @@ class FileController extends Controller{
     public function actionRecycle(){
         $this->layout = 'user';
         $fileService = new FileService();
-        $files =$fileService->recycleFiles();
+        $userId = $_SESSION['user']['user_id'];
+        $files =$fileService->recycleFiles($userId);
         return $this->render('recycle',['files'=>$files]);
     }
 
@@ -351,7 +360,8 @@ class FileController extends Controller{
             $files = array_unique($files);
             $files = array_merge($files);
             $filesService = new FileService();
-            $result = $filesService->revertFiles($files);
+            $userId = $_SESSION['user']['user_id'];
+            $result = $filesService->revertFiles($files,$userId);
             switch($result){
                 case '0' : $data['code'] = '0';break;
                 case '1' : $data['code'] = '1';$data['msg'] = '还原错误';break;

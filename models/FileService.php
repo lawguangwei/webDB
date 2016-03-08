@@ -8,10 +8,9 @@
 namespace app\models;
 
 use yii\base\Exception;
-use yii\debug\models\search\Log;
 
 class FileService{
-    public function uploadFile($fileName,$fileType,$fileSize,$file){
+    public function uploadFile($fileName,$fileType,$fileSize,$file,$userId,$currentId){
 
         $userFile = UserFile::findOne(['md5'=>md5_file($file)]);
         if($userFile == null){
@@ -25,13 +24,13 @@ class FileService{
             }
         }
 
-        $disk = Disk::findOne(['user_id'=>$_SESSION['user']['user_id']]);
+        $disk = Disk::findOne(['user_id'=>$userId]);
 
 
         try{
             $tran = \Yii::$app->db->beginTransaction();
             $created_date = date('Y-m-d H:i:sa');
-            $user_id = $_SESSION['user']['user_id'];
+            $user_id = $userId;
             $record_id = md5($user_id.$fileName.$created_date);
 
             $fileRecord = new FileRecord();
@@ -48,7 +47,7 @@ class FileService{
             }
             $fileRecord->file_type = $fileType;
             $fileRecord->file_size = $fileSize;
-            $fileRecord->parent_id = $_SESSION['current_id'];
+            $fileRecord->parent_id = $currentId;
 
             $fileRecord->upload_date = $created_date;
             $fileRecord->state = "0";
@@ -60,7 +59,7 @@ class FileService{
                     $tran->rollBack();
                 }
                 if($disk->save()){
-                    $parent_folder = FileRecord::findOne(['f_record_id'=>$_SESSION['current_id']]);
+                    $parent_folder = FileRecord::findOne(['f_record_id'=>$currentId]);
                     while($parent_folder->parent_id != '0'){
                         $parent_folder->file_size = $parent_folder->file_size + $fileSize;
                         if($parent_folder->save()){
@@ -87,7 +86,8 @@ class FileService{
         return FileRecord::find()->where(['parent_id'=>$id,'state'=>'0'])->orderBy('file_name')->asArray()->all();
     }
 
-    public function mkdir($dirname){
+
+    public function mkdir($dirname,$currentId){
         $created_date = date('Y-m-d H:i:sa');
         $user_id = $_SESSION['user']['user_id'];
 
@@ -101,7 +101,7 @@ class FileService{
         $fileRecord->extension = '';
         $fileRecord->file_type = 'folder';
         $fileRecord->file_size = 0;
-        $fileRecord->parent_id = $_SESSION['current_id'];
+        $fileRecord->parent_id = $currentId;
         $fileRecord->upload_date = $created_date;
         $fileRecord->state = '0';
 
@@ -115,7 +115,7 @@ class FileService{
         }
     }
 
-    public function deleteFolder($folderId){
+    public function deleteFolder($folderId,$userId){
         $folder = FileRecord::findOne(['f_record_id'=>$folderId]);
         $childs = FileRecord::findAll(['parent_id'=>$folderId]);
         $tran = \Yii::$app->db->beginTransaction();
@@ -124,7 +124,7 @@ class FileService{
                 $this->deleteFolder($child->f_record_id);
             }
             if($child->f_record_type == '1'){
-                $this->deleteFile($child->f_record_id);
+                $this->deleteFile($child->f_record_id,$userId);
             }
         }
         $folder->state = '1';
@@ -142,10 +142,10 @@ class FileService{
         }
     }
 
-    public function deleteFile($recordId){
+    public function deleteFile($recordId,$userId){
         $fileRecord = FileRecord::find()->where(['f_record_id'=>$recordId])->one();
         $fileSize = $fileRecord->file_size;
-        $disk = Disk::findOne(['user_id'=>$_SESSION['user']['user_id']]);
+        $disk = Disk::findOne(['user_id'=>$userId]);
         $tran = \Yii::$app->db->beginTransaction();
         try{
             $fileRecord->state = '1';
@@ -178,9 +178,9 @@ class FileService{
     }
 
 
-    public function pasteFiles($files){
+    public function pasteFiles($files,$userId,$currentId){
         $tran = \Yii::$app->db->beginTransaction();
-        $disk = Disk::findOne(['user_id'=>$_SESSION['user']['user_id']]);
+        $disk = Disk::findOne(['user_id'=>$userId]);
         try{
             foreach($files as $record_id){
                 $file = FileRecord::findOne(['f_record_id'=>$record_id]);
@@ -189,7 +189,7 @@ class FileService{
                     $tran->rollBack();
                     return '空间不足';
                 }
-                $parent_folder = FileRecord::findOne(['f_record_id'=>$_SESSION['current_id']]);
+                $parent_folder = FileRecord::findOne(['f_record_id'=>$currentId]);
                 while($parent_folder->parent_id != '0'){
                     $parent_folder->file_size = $parent_folder->file_size + $file->file_size;
                     if($parent_folder->save()){
@@ -200,10 +200,10 @@ class FileService{
                     }
                 }
                 if($file->f_record_type == '2'){
-                    $this->pasteFolder($record_id,$_SESSION['current_id']);
+                    $this->pasteFolder($record_id,$currentId);
                 }
                 if($file->f_record_type == '1'){
-                    $this->pasteFile($record_id,$_SESSION['current_id']);
+                    $this->pasteFile($record_id,$currentId);
                 }
             }
             if($disk->save()){
@@ -315,36 +315,36 @@ class FileService{
         }
     }
 
-    public function selectFileByType($type){
+    public function selectFileByType($type,$userId){
         if($type == 'picture'){
-            $sql = 'select * from file_record where user_id="'.$_SESSION['user']['user_id'].'" and state="0" and extension in("jpg","jpeg","png","gif")';
+            $sql = 'select * from file_record where user_id="'.$userId.'" and state="0" and extension in("jpg","jpeg","png","gif")';
             $files = FileRecord::findBySql($sql)->all();
            // $files = FileRecord::find()->Where(['user_id'=>$_SESSION['user']['user_id'],'extension'=>'jpg'])->orWhere(['user_id'=>$_SESSION['user']['user_id'],'extension'=>'jpeg'])
               //  ->orWhere(['user_id'=>$_SESSION['user']['user_id'],'extension'=>'png'])->where(['user_id'=>$_SESSION['user']['user_id'],'extension'=>'gif'])->all();
         }
         if($type == 'word'){
-            $sql = 'select * from file_record where user_id="'.$_SESSION['user']['user_id'].'" and state="0" and extension in("txt","doc","ppt","xls","pdf","docx","xlsx","pptx")';
+            $sql = 'select * from file_record where user_id="'.$userId.'" and state="0" and extension in("txt","doc","ppt","xls","pdf","docx","xlsx","pptx")';
             $files = FileRecord::findBySql($sql)->all();
         }
         if($type == 'film'){
-            $sql = 'select * from file_record where user_id="'.$_SESSION['user']['user_id'].'" and state="0" and extension in("avi","rm","rmvb","mov","wmv","mp4","mkv","mpeg")';
+            $sql = 'select * from file_record where user_id="'.$userId.'" and state="0" and extension in("avi","rm","rmvb","mov","wmv","mp4","mkv","mpeg")';
             $files = FileRecord::findBySql($sql)->all();
         }
         if($type == 'music'){
-            $sql = 'select * from file_record where user_id="'.$_SESSION['user']['user_id'].'" and state="0" and extension in("mp3","wav","wma","ogg","ape","acc")';
+            $sql = 'select * from file_record where user_id="'.$userId.'" and state="0" and extension in("mp3","wav","wma","ogg","ape","acc")';
             $files = FileRecord::findBySql($sql)->all();
         }
         if($type == 'other'){
-            $sql = 'select * from file_record where user_id="'.$_SESSION['user']['user_id'].'" and f_record_type = "1" and state="0" and extension not in("mp3","wav","wma","ogg","ape","acc","jpg","jpeg","png","gif",
+            $sql = 'select * from file_record where user_id="'.$userId.'" and f_record_type = "1" and state="0" and extension not in("mp3","wav","wma","ogg","ape","acc","jpg","jpeg","png","gif",
             "txt","doc","ppt","xls","pdf","docx","xlsx","pptx","avi","rm","rmvb","mov","wmv","mp4","mkv","mpeg")';
             $files = FileRecord::findBySql($sql)->all();
         }
         return $files;
     }
 
-    public function typeSize(){
+    public function typeSize($userId){
         $conn = \Yii::$app->db;
-        $sql = 'select sum(file_size) as size from file_record where user_id="'.$_SESSION['user']['user_id'].'" and state="0" and extension in("jpg","jpeg","png","gif")';
+        $sql = 'select sum(file_size) as size from file_record where user_id="'.$userId.'" and state="0" and extension in("jpg","jpeg","png","gif")';
         $command = $conn->createCommand($sql);
         $result = $command->queryOne();
         if($result != null){
@@ -352,7 +352,7 @@ class FileService{
         }else{
             $typeSize['picture'] = 0;
         }
-        $sql = 'select sum(file_size) as size from file_record where user_id="'.$_SESSION['user']['user_id'].'" and state="0" and extension in("txt","doc","ppt","xls","pdf","docx","xlsx","pptx")';
+        $sql = 'select sum(file_size) as size from file_record where user_id="'.$userId.'" and state="0" and extension in("txt","doc","ppt","xls","pdf","docx","xlsx","pptx")';
         $command = $conn->createCommand($sql);
         $result = $command->queryOne();
         if($result != null){
@@ -360,7 +360,7 @@ class FileService{
         }else{
             $typeSize['word'] = 0;
         }
-        $sql = 'select sum(file_size) as size from file_record where user_id="'.$_SESSION['user']['user_id'].'" and state="0" and extension in("mp3","wav","wma","ogg","ape","acc")';
+        $sql = 'select sum(file_size) as size from file_record where user_id="'.$userId.'" and state="0" and extension in("mp3","wav","wma","ogg","ape","acc")';
         $command = $conn->createCommand($sql);
         $result = $command->queryOne();
         if($result != null){
@@ -368,7 +368,7 @@ class FileService{
         }else{
             $typeSize['music'] = 0;
         }
-        $sql = 'select sum(file_size) as size from file_record where user_id="'.$_SESSION['user']['user_id'].'" and state="0" and extension in("avi","rm","rmvb","mov","wmv","mp4","mkv","mpeg")';
+        $sql = 'select sum(file_size) as size from file_record where user_id="'.$userId.'" and state="0" and extension in("avi","rm","rmvb","mov","wmv","mp4","mkv","mpeg")';
         $command = $conn->createCommand($sql);
         $result = $command->queryOne();
         if($result != null){
@@ -376,7 +376,7 @@ class FileService{
         }else{
             $typeSize['film'] = 0;
         }
-        $sql = 'select sum(file_size) as size from file_record where user_id="'.$_SESSION['user']['user_id'].'" and state="0" and extension not in("mp3","wav","wma","ogg","ape","acc","jpg","jpeg","png","gif",
+        $sql = 'select sum(file_size) as size from file_record where user_id="'.$userId.'" and state="0" and extension not in("mp3","wav","wma","ogg","ape","acc","jpg","jpeg","png","gif",
             "txt","doc","ppt","xls","pdf","docx","xlsx","pptx","avi","rm","rmvb","mov","wmv","mp4","mkv","mpeg")';
         $command = $conn->createCommand($sql);
         $result = $command->queryOne();
@@ -417,10 +417,10 @@ class FileService{
         return $result;
     }
 
-    public function recycleFiles(){
+    public function recycleFiles($userId){
         $conn = \Yii::$app->db;
         $sql = 'select * from file_record inner join remove_log on file_record.f_record_id = remove_log.f_record_id where
-          f_record_type = "1" and file_record.state="1" and file_record.user_id="'.$_SESSION['user']['user_id'].'"
+          f_record_type = "1" and file_record.state="1" and file_record.user_id="'.$userId.'"
           and to_days(now()) - TO_DAYS(remove_log.remove_date) < 10 order by remove_log.remove_date desc ';
         $command = $conn->createCommand($sql);
         $result = $command->queryAll();
@@ -428,18 +428,18 @@ class FileService{
         return $result;
     }
 
-    public function revertFiles($files){
+    public function revertFiles($files,$userId){
         $tran = \Yii::$app->db->beginTransaction();
         try{
             foreach($files as $recordId){
                 $fileRecord = FileRecord::findOne(['f_record_id'=>$recordId]);
-                $disk = Disk::findOne(['user_id'=>$_SESSION['user']['user_id']]);
+                $disk = Disk::findOne(['user_id'=>$userId]);
                 if($disk->available_size < $fileRecord->file_size){
                     $tran->rollBack();
                     return '2';                                                                             //空间不足
                 }
                 $fileRecord->state = '0';
-                $fileRecord->parent_id = $_SESSION['user']['user_id'];
+                $fileRecord->parent_id = $userId;
                 if(!$fileRecord->save()){
                     $tran->rollBack();
                     return '1';                                                                             //还原错误

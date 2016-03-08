@@ -158,9 +158,10 @@ class UserController extends Controller
 
     public function actionPersonInfo(){
         $this->layout = 'person_info';
-        $disk = Disk::findOne(['user_id'=>$_SESSION['user']['user_id']]);
+        $userId = $_SESSION['user']['user_id'];
+        $disk = Disk::findOne(['user_id'=>$userId]);
         $fileService = new FileService();
-        $typeSize = $fileService->typeSize();
+        $typeSize = $fileService->typeSize($userId);
         $logService = new LogService();
         $logs = $logService->getLoginLog();
         return $this->render('person_info',['disk'=>$disk,'typeSize'=>$typeSize,'logs'=>$logs]);
