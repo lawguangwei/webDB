@@ -13,6 +13,7 @@ use yii\web\Controller;
 use app\models\LoginLog;
 use app\models\LogService;
 use app\models\User;
+use app\models\Disk;
 use Yii;
 
 class TestController extends Controller{
@@ -29,40 +30,37 @@ class TestController extends Controller{
         ];
     }
 
+    public function actionTest(){
+        echo rand(0,1);
+    }
     public function actionInsertLoginLog(){
-        $user_id = 'a0f9a13c27bfc8377beedfd5cf53317f';
-        /*
-        for($day=10;$day<=30;$day++){
-            $date = '2015-11-'.$day.' H:i:s';
-            for($i=0;$i<mt_rand(50,200);$i++){
-                $loginLog = new LoginLog();
-                $loginLog->l_log_id = md5($user_id.date($date).$i);
-                $loginLog->user_id = $user_id;
-                $loginLog->login_date = date($date);
-                $loginLog->login_ip = Yii::$app->request->userIP;
-                $loginLog->ip_address = '未能获取';
-                $loginLog->save();
-            }
-        }*/
-        for($i=0;$i<mt_rand(50,200);$i++){
+        $start_time = '2015-08-01 00:00:00';
+        $end_time = '2016-03-09 00:00:00';
+
+        for($i=1;$i<=1000;$i++){
+            $date = $this->rand_time($start_time,$end_time);
+            $user_name = 'test'.$i;
+            $user_email = $user_name.'@qq.com';
+            $user=User::findOne(['user_email'=>$user_email]);
+
             $loginLog = new LoginLog();
-            $loginLog->l_log_id = md5($user_id.date('2016-03-01 H:i:s').$i);
-            $loginLog->user_id = $user_id;
-            $loginLog->login_date = date('2016-03-01 H:i:s');
+            $loginLog->l_log_id = md5($user->user_id.$date.$i);
+            $loginLog->user_id = $user->user_id;
+            $loginLog->login_date = $date;
             $loginLog->login_ip = Yii::$app->request->userIP;
             $loginLog->ip_address = '未能获取';
             $loginLog->save();
         }
-
-        echo 'success';
+        echo rand(1,1000);
+        //echo date('Y-m-d H:i:s');
     }
 
     public function actionInsertFileRecord(){
-        $file_id = '56dbaa09e8a711bd54b7acd9';
-        $user_id = '9fc058c08ef343c7d160be4e80a8d13c';
-        $start_time = '2016-02-20 00:00:00';
-        $end_time = '2016-03-01 00:00:00';
-        for($i=0;$i<20;$i++){
+        $file_id = '56e009bee8a711f465b7acd9';
+        $user_id = '72eb5a63e3a3584271d0cfc09beaf736';
+        $start_time = '2015-01-01 00:00:00';
+        $end_time = '2016-03-09 00:00:00';
+        for($i=1001;$i<1500;$i++){
             $date = $this->rand_time($start_time,$end_time);
             $file = new FileRecord();
             $file->f_record_id = md5($user_id.$date.$i);
@@ -70,37 +68,76 @@ class TestController extends Controller{
             $file->file_id = $file_id;
             $file->user_id = $user_id;
             $file->file_name = 'testData';
-            $file->extension = 'zip';
-            $file->file_type = 'application/zip';
-            $file->file_size = 363802;
+            $file->extension = 'mp3';
+            $file->file_type = 'audio/mp3';
+            $file->file_size = 445746179;
             $file->parent_id = $user_id;
             $file->upload_date =$date;
             $file->state = '1';
             $file->save();
-            $log = new RemoveLog();
-            $log->f_record_id = $file->f_record_id;
-            $log->remove_date = $date;
-            $log->save();
+            $removeLog = new RemoveLog();
+            $removeLog->f_record_id = $file->f_record_id;
+            $removeLog->remove_date = $date;
+            $removeLog->save();
         }
         echo date('Y-m-d H:i:s');
     }
 
     public function actionInsertUser(){
-        $start_time = '2015-01-01 00:00:00';
-        $end_time = '2016-03-04 00:00:00';
-        for($i=10000;$i<12000;$i++){
+        for($i=2;$i<1000;$i++){
             $user_name = 'test'.$i;
             $user_email = $user_name.'@qq.com';
-            $user = new User();
-            $user->user_id = md5($user_email);
-            $user->user_email = $user_email;
-            $user->user_name = $user_name;
-            $user->user_password = md5('123456');
-            $user->create_date= $this->rand_time($start_time,$end_time);
-            $user->state = '0';
-            $user->save();
+            $this->userRegister($user_email,$user_name);
         }
+
         return date('Y-m-d H:i:s');
+    }
+
+    public function userRegister($email,$userName){
+        $start_time = '2015-01-01 00:00:00';
+        $end_time = '2016-03-04 00:00:00';
+        $createDate = $this->rand_time($start_time,$end_time);
+
+        $userId = md5($email.$createDate);
+        $user = new User();
+        $user->user_id = $userId;
+        $user->user_email = $email;
+        $user->user_password = md5('123456');
+        $user->user_name = $userName;
+        $user->create_date = $createDate;
+
+        $tran = \Yii::$app->db->beginTransaction();
+        try{
+            if($user->save()){
+                $disk = new Disk();
+                $disk->disk_id = md5($userId.$createDate);    //创建用户空间
+                $disk->user_id = $userId;
+                $disk->capacity = 21474836480; //20GB
+                $disk->available_size = 21474836480;
+                $disk->create_date = $createDate;
+                if($disk->save()){                            //初始化用户跟目录
+                    $fileRecord = new FileRecord();
+                    $fileRecord->f_record_id = $userId;
+                    $fileRecord->f_record_type = '2';         //f_record_type:2,目录类型
+                    $fileRecord->file_id = '0';               //目录类型文件id为0
+                    $fileRecord->user_id = $userId;
+                    $fileRecord->file_name = '我的网盘';
+                    $fileRecord->extension = '';
+                    $fileRecord->file_type = 'folder';
+                    $fileRecord->file_size = 0;
+                    $fileRecord->parent_id = '0';               //跟目录上级目录为0
+                    $fileRecord->upload_date = $createDate;
+                    $fileRecord->state = '0';                //记录状态0为正常
+                    if($fileRecord->save()){
+                        $tran->commit();
+                        $_SESSION['user'] = $user;
+                        return 'success';
+                    }
+                }
+            }
+        }catch (Exception $e){
+            $tran->rollBack();
+        }
     }
 
     function rand_time($start_time,$end_time){

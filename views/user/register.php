@@ -30,6 +30,9 @@ RegisterAsset::register($this);
     ?>
 
     <div class="row">
+        <h3 class="text-info" style="text-align: center;text-shadow: 1px 1px 1px #999">用户注册</h3>
+    </div>
+    <div class="row div-form">
         <form id="login-form" action="<?=\yii\helpers\Url::base()."/index.php?r=user/register"?>" method="POST" class="form-horizontal col-md-4 col-md-offset-4">
             <input id="text_csrf" type="hidden" name="_csrf" value="<?=Yii::$app->request->csrfToken?>">
             <div class="form-group">

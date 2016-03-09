@@ -17,16 +17,16 @@ $this->title = '用户信息';
         </div>
         <div id='person-info' class="panel-body">
             <div class="row">
-                <div class="col-md-2 text-info" style="text-align: right"><b>用户登录账户:</b></div>
-                <div class="col-md-10" style="text-align: left"><?=$_SESSION['user']['user_email']?></div>
+                <div class="col-md-3 text-info" style="text-align: right"><b>用户登录账户:</b></div>
+                <div class="col-md-9" style="text-align: left"><?=$_SESSION['user']['user_email']?></div>
             </div>
             <div class="row">
-                <div class="col-md-2 text-info" style="text-align: right"><b>用户名:</b></div>
-                <div class="col-md-10" style="text-align: left"><?=$_SESSION['user']['user_name']?></div>
+                <div class="col-md-3 text-info" style="text-align: right"><b>用户名:</b></div>
+                <div class="col-md-9" style="text-align: left"><?=$_SESSION['user']['user_name']?></div>
             </div>
             <div class="row">
-                <div class="col-md-2 text-info" style="text-align: right"><b>创建日期:</b></div>
-                <div class="col-md-10" style="text-align: left"><?=$_SESSION['user']['create_date']?></div>
+                <div class="col-md-3 text-info" style="text-align: right"><b>创建日期:</b></div>
+                <div class="col-md-9" style="text-align: left"><?=$_SESSION['user']['create_date']?></div>
             </div>
 
         </div>

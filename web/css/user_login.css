@@ -1,6 +1,11 @@
 body{
-    background: #e7e7e7;
+    background: url("../images/cloud.jpg");
 }
+
+.div-form form{
+    background: #efefef;
+}
+
 #logo{
     width: 150px;
     margin-left: 60px;

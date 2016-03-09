@@ -73,23 +73,15 @@ class UserController extends Controller
             $userService = new UserService();
             $result = $userService->userLogin($email,$password);
 
-            if($result == '0'){                                         //$result->0:帐号不存在;1:密码不正确
-                $errors['user_email']['0'] = '该邮箱未注册';
-                return $this->render('login',['errors'=>$errors]);
+            switch($result){
+                case '0':$error = '该邮箱未注册';break;
+                case '1':return $this->redirect(Url::base().'/index.php?r=user/index');break;
+                case '2':$error = '密码不正确';break;
+                case '3':$error = '登录失败,请重试';break;
+                case '4':$error = '账号已禁用';break;
+                default:$error = '服务器错误';
             }
-            if($result == '2'){
-                $errors['user_password']['0'] = '密码不正确';
-                return $this->render('login',['errors'=>$errors]);
-            }
-            if($result == '3'){                                        //登录日志写入错误
-                $errors['user_password']['0'] = '登录失败,请重试';
-                return $this->render('login',['errors'=>$errors]);
-            }
-            if($result == '1'){
-                return $this->redirect(Url::base().'/index.php?r=user/index');
-            }
-            $errors['unknown']['0'] = '未知错误';
-            return $this->render('login',['errors'=>$errors]);
+            return $this->render('login',['error'=>$error]);
         }
         return $this->render('login');
     }

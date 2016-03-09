@@ -23,8 +23,11 @@ class UserService{
      */
     public function userLogin($email,$password){
         $user = User::findOne(['user_email'=>$email]);
+        if($user->state == '1'){
+            return '4';                                        //1:账号被禁用
+        }
         if($user == null){
-            return 0;                                        //0:帐号不存在;1:登录成功;2:密码不正确;
+            return '0';                                        //0:帐号不存在;1:登录成功;2:密码不正确;
         }
         $password = md5($password);
         if($user->user_password == $password){
@@ -33,12 +36,12 @@ class UserService{
             $msg = $logService->login($userId);
             if($msg == 'success'){
                 $_SESSION['user'] = $user;
-                return 1;                                   //0:帐号不存在;1:登录成功;2:密码不正确;
+                return '1';                                   //0:帐号不存在;1:登录成功;2:密码不正确;
             }else{
-                return 3;
+                return'3';
             }                                               //loginRecord写入错误
         }else{
-            return 2;                               //0:帐号不存在;1:登录成功;2:密码不正确;
+            return '2';                               //0:帐号不存在;1:登录成功;2:密码不正确;
         }
     }
 

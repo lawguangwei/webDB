@@ -12,21 +12,20 @@ LoginAsset::register($this);
 ?>
 <div class="container-fluid">
     <?php
-    if(isset($errors)){
-        foreach($errors as $errs){
-            foreach($errs as $err){?>
-                <div class="col-md-6 col-md-offset-3 alert alert-danger alert-dismissible fade in">
-                    <a href="#" class="close" data-dismiss="alert">
-                        &times;
-                    </a>
-                    <strong>警告！</strong><?=$err?>
-                </div>
-            <?php }
-        }
-    }
+    if(isset($error)){ ?>
+    <div class="col-md-6 col-md-offset-3 alert alert-danger alert-dismissible fade in">
+        <a href="#" class="close" data-dismiss="alert">
+            &times;
+        </a>
+        <strong>警告！</strong><?=$error?>
+    </div>
+    <?php }
     ?>
 
     <div class="row">
+        <h3 class="text-info" style="text-align: center;text-shadow: 1px 1px 1px #999">用户登录</h3>
+    </div>
+    <div class="row div-form">
         <form id="login-form" action="<?=\yii\helpers\Url::base().'/index.php?r=user/login'?>"
               method="post" class="form-horizontal col-md-4 col-md-offset-4">
             <input type="hidden" name="_csrf" value="<?=Yii::$app->request->csrfToken?>">
@@ -47,7 +46,6 @@ LoginAsset::register($this);
             </div>
             <div class="form-group">
                 <div class="col-md-12">
-                    <p class="p-left"><a href="#">忘记密码</a></p>
                     <p class="p-right"><a href="<?=\yii\helpers\Url::base()."?r=user/register"?>">注册</a></p>
                 </div>
             </div>
