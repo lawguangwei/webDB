@@ -26,11 +26,7 @@
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><?=$_SESSION['admin']['admin_account']?> <span class="caret"></span></a>
                     <ul class="dropdown-menu">
-                        <li><a href="#">Action</a></li>
-                        <li><a href="#">Another action</a></li>
-                        <li><a href="#">Something else here</a></li>
-                        <li role="separator" class="divider"></li>
-                        <li><a href="#">退出</a></li>
+                        <li><a href="<?=\yii\helpers\Url::base().'/index.php?r=admin/logout'?>">退出</a></li>
                     </ul>
                 </li>
             </ul>
@@ -200,10 +196,12 @@
                                 <td>文件id</td>
                                 <td>文件类型</td>
                                 <td>文件大小</td>
-                                <td>下载次数</td>
-                                <td></td>
+                                <td>管理员id</td>
+                                <td>设置时间</td>
                             </tr>
                         </table>
+                        <ul id="file-3-page" class="pagination">
+                        </ul>
                     </div>
                 </div>
             </div>

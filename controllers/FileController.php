@@ -10,6 +10,7 @@ namespace app\controllers;
 use app\components\LoginFilter;
 use app\models\FileRecord;
 use app\models\LogService;
+use app\models\ShareCode;
 use Faker\Provider\File;
 use Yii;
 use yii\helpers\Url;
@@ -84,6 +85,9 @@ class FileController extends Controller{
             }else if($msg == '2'){
                 $result['code'] = '2';
                 $result['msg'] = '数据库错误';
+            }else if($msg == '3'){
+                $result['code'] = '3';
+                $result['msg'] = '违规文件,禁止上传';
             }else{
                 $result['code'] = '0';
                 $result['msg'] = 'success';
@@ -198,11 +202,12 @@ class FileController extends Controller{
      */
     public function actionDeleteFile(){
         if(Yii::$app->request->isPost){
+            $userId = $_SESSION['user']['user_id'];
             $record_id = $_POST['record_id'];
             $fileService = new FileService();
             $result['code'] = '0';
-            $result['info'] = $fileService->deleteFile($record_id);
-            $result['disk'] = Disk::find()->where(['user_id'=>$_SESSION['user']['user_id']])->asArray()->one();
+            $result['info'] = $fileService->deleteFile($record_id,$userId);
+            $result['disk'] = Disk::find()->where(['user_id'=>$userId])->asArray()->one();
             return json_encode($result);
             /**
             if($result == 'success'){
@@ -279,7 +284,7 @@ class FileController extends Controller{
                         return json_encode($result);
                     }
                     if($_SESSION['copy_option'] == 'cut'){
-                        $msg = $fileServices->deleteFiles($files);
+                        $msg = $fileServices->deleteFiles($files,$userId);
                         $result['msg'] = $msg;
                         unset($_SESSION['copy_files']);
                         unset($_SESSION['copy_option']);
@@ -298,14 +303,15 @@ class FileController extends Controller{
      */
     public function actionDeleteFiles(){
         if(Yii::$app->request->isPost){
+            $userId = $_SESSION['user']['user_id'];
             $files = $_POST['files'];
             $files = array_unique($files);
             $files = array_merge($files);
             $fileService = new FileService();
-            $msg = $fileService->deleteFiles($files);
+            $msg = $fileService->deleteFiles($files,$userId);
             if($msg == 'success'){
                 $result['code'] = '0';
-                $result['disk'] = Disk::find()->where(['user_id'=>$_SESSION['user']['user_id']])->asArray()->one();
+                $result['disk'] = Disk::find()->where(['user_id'=>$userId])->asArray()->one();
                 echo json_encode($result);
             }else{
                 $result['code'] = '1';
@@ -367,6 +373,62 @@ class FileController extends Controller{
                 case '1' : $data['code'] = '1';$data['msg'] = '还原错误';break;
                 case '2' : $data['code'] = '2';$data['msg'] = '空间不足';break;
                 default : $data['code'] = '1';$data['msg'] = '还原错误';
+            }
+            return json_encode($data);
+        }
+    }
+
+    public function actionUserShareFiles(){
+        $this->layout = 'person_info';
+        return $this->render('share');
+    }
+
+    public function actionShareFile(){
+        if(Yii::$app->request->isPost){
+            $recordId = $_POST['record_id'];
+            $userId = $_SESSION['user']['user_id'];
+            $fileService = new FileService();
+            $msg = $fileService->createShareCode($recordId,$userId);
+            switch($msg){
+                case '1' : $data['code'] = '1';$data['msg'] = '分享码已存在';break;
+                case '2' : $data['code'] = '2';$data['msg'] = '分享文件数量已满';break;
+                case '3' : $data['code'] = '3';$data['msg'] = '分享码生成失败';break;
+                default : $data['code'] = '0';$data['msg'] = $msg;break;
+            }
+            return json_encode($data);
+        }
+    }
+
+    public function actionShareFileList(){
+        $userId = $_SESSION['user']['user_id'];
+        $fileService = new FileService();
+        $data = $fileService->getUserShareFile($userId);
+        return json_encode($data);
+    }
+
+    public function actionDeleteShareCode(){
+        if(Yii::$app->request->isPost){
+            $codeId = $_POST['code_id'];
+            $shareCode = ShareCode::findOne(['code_id'=>$codeId]);
+            if($shareCode->delete()){
+                $data['code'] = '0';
+            }else{
+                $data['code'] = '1';
+                $data['msg'] = $shareCode->errors;
+            }
+            return json_encode($data);
+        }
+    }
+
+    public function actionGetCodeFile(){
+        if(Yii::$app->request->isPost){
+            $code = $_POST['code'];
+            $fileService = new FileService();
+            $msg = $fileService->getFileByCode($code);
+            switch($msg){
+                case '1':$data['code'] = '1';$data['msg'] = '提取码不存在';break;
+                case '2':$data['code'] = '2';$data['msg'] = '文件已删除';break;
+                default:$data['code'] = '0';$data['file_id'] = $msg;break;
             }
             return json_encode($data);
         }

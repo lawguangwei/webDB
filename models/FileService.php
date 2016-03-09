@@ -8,6 +8,7 @@
 namespace app\models;
 
 use yii\base\Exception;
+use yii\db\Query;
 
 class FileService{
     public function uploadFile($fileName,$fileType,$fileSize,$file,$userId,$currentId){
@@ -24,12 +25,16 @@ class FileService{
             }
         }
 
+        $fm_log = FileManageLog::findAll(['file_id'=>$userFile->_id]);
+        if($fm_log != null){
+            return '3';                                                     //违规文件
+        }
+
+
         $disk = Disk::findOne(['user_id'=>$userId]);
-
-
         try{
             $tran = \Yii::$app->db->beginTransaction();
-            $created_date = date('Y-m-d H:i:sa');
+            $created_date = date('Y-m-d H:i:s');
             $user_id = $userId;
             $record_id = md5($user_id.$fileName.$created_date);
 
@@ -88,7 +93,7 @@ class FileService{
 
 
     public function mkdir($dirname,$currentId){
-        $created_date = date('Y-m-d H:i:sa');
+        $created_date = date('Y-m-d H:i:s');
         $user_id = $_SESSION['user']['user_id'];
 
         $record_id = md5($user_id.$dirname.$created_date);
@@ -116,12 +121,12 @@ class FileService{
     }
 
     public function deleteFolder($folderId,$userId){
-        $folder = FileRecord::findOne(['f_record_id'=>$folderId]);
-        $childs = FileRecord::findAll(['parent_id'=>$folderId]);
+        $folder = FileRecord::findOne(['f_record_id'=>$folderId,'state'=>'0']);
+        $childs = FileRecord::findAll(['parent_id'=>$folderId,'state'=>'0']);
         $tran = \Yii::$app->db->beginTransaction();
         foreach($childs as $child){
             if($child->f_record_type == '2'){
-                $this->deleteFolder($child->f_record_id);
+                $this->deleteFolder($child->f_record_id,$userId);
             }
             if($child->f_record_type == '1'){
                 $this->deleteFile($child->f_record_id,$userId);
@@ -143,7 +148,7 @@ class FileService{
     }
 
     public function deleteFile($recordId,$userId){
-        $fileRecord = FileRecord::find()->where(['f_record_id'=>$recordId])->one();
+        $fileRecord = FileRecord::find()->where(['f_record_id'=>$recordId,'state'=>'0'])->one();
         $fileSize = $fileRecord->file_size;
         $disk = Disk::findOne(['user_id'=>$userId]);
         $tran = \Yii::$app->db->beginTransaction();
@@ -183,17 +188,17 @@ class FileService{
         $disk = Disk::findOne(['user_id'=>$userId]);
         try{
             foreach($files as $record_id){
-                $file = FileRecord::findOne(['f_record_id'=>$record_id]);
+                $file = FileRecord::findOne(['f_record_id'=>$record_id,'state'=>'0']);
                 $disk->available_size = $disk->available_size - $file->file_size;
                 if($disk->available_size < 0){
                     $tran->rollBack();
                     return '空间不足';
                 }
-                $parent_folder = FileRecord::findOne(['f_record_id'=>$currentId]);
+                $parent_folder = FileRecord::findOne(['f_record_id'=>$currentId,'state'=>'0']);
                 while($parent_folder->parent_id != '0'){
                     $parent_folder->file_size = $parent_folder->file_size + $file->file_size;
                     if($parent_folder->save()){
-                        $parent_folder = FileRecord::findOne(['f_record_id'=>$parent_folder->parent_id]);
+                        $parent_folder = FileRecord::findOne(['f_record_id'=>$parent_folder->parent_id,'state'=>'0']);
                     }else{
                         $tran->rollBack();
                         return '服务器错误';                                                                 //修改父目录信息错误
@@ -219,10 +224,10 @@ class FileService{
     }
 
     public function pasteFolder($record_id,$parent_id){
-        $file = FileRecord::findOne(['f_record_id'=>$record_id]);
-        $childs = FileRecord::findAll(['parent_id'=>$record_id]);
+        $file = FileRecord::findOne(['f_record_id'=>$record_id,'state'=>'0']);
+        $childs = FileRecord::findAll(['parent_id'=>$record_id,'state'=>'0']);
 
-        $date = date('Y-m-d H:i:sa');
+        $date = date('Y-m-d H:i:s');
         $newRecord = new FileRecord();
         $newRecord->f_record_id = md5($file->f_record_id.$date);
         $newRecord->f_record_type = $file->f_record_type;
@@ -251,8 +256,8 @@ class FileService{
     }
 
     public function pasteFile($record_id,$parent_id){
-        $file = FileRecord::findOne(['f_record_id'=>$record_id]);
-        $date = date('Y-m-d H:i:sa');
+        $file = FileRecord::findOne(['f_record_id'=>$record_id,'state'=>'0']);
+        $date = date('Y-m-d H:i:s');
         $newRecord = new FileRecord();
         $newRecord->f_record_id = md5($file->f_record_id.$date);
         $newRecord->f_record_type = $file->f_record_type;
@@ -273,16 +278,16 @@ class FileService{
         }
     }
 
-    public function deleteFiles($files){
+    public function deleteFiles($files,$userId){
         try{
             foreach($files as $record_id){
-                $file = FileRecord::findOne(['f_record_id'=>$record_id]);
+                $file = FileRecord::findOne(['f_record_id'=>$record_id,'state'=>'0']);
                 $f_record_type = $file->f_record_type;
                 if($f_record_type == '2'){
-                    $this->deleteFolder($file->f_record_id);
+                    $this->deleteFolder($file->f_record_id,$userId);
                 }
                 if($f_record_type == '1'){
-                    $this->deleteFile($file->f_record_id);
+                    $this->deleteFile($file->f_record_id,$userId);
                 }
             }
             return 'success';
@@ -292,7 +297,7 @@ class FileService{
     }
 
     public function rename($record_id,$newName){
-        $record = FileRecord::findOne(['f_record_id'=>$record_id]);
+        $record = FileRecord::findOne(['f_record_id'=>$record_id,'state'=>'0']);
         $record->file_name = $newName.'.'.$record->extension;
         if($record->f_record_type == '1'){
             $file = UserFile::findOne($record->file_id);
@@ -413,8 +418,12 @@ class FileService{
     }
 
     public function countFileSize(){
-        $result = UserFile::find()->sum('filesize');
-        return $result;
+        $result = UserFile::find()->all();
+        $sum = 0;
+        foreach($result as $file){
+            $sum += $file['filesize'];
+        }
+        return $sum;
     }
 
     public function recycleFiles($userId){
@@ -461,5 +470,75 @@ class FileService{
             $tran->rollBack();
             return '1';
         }
+    }
+
+    public function createShareCode($recordId,$userId){
+        $shareCode = ShareCode::findAll(['f_record_id'=>$recordId,'user_id'=>$userId]);
+        if($shareCode != null){
+            return '1';                                                                 //分享码已存在
+        }
+
+        $conn = \Yii::$app->db;
+        $sql = 'select count(*) as num from share_code where user_id="'.$userId.'"';
+        $command = $conn->createCommand($sql);
+        $result = $command->queryOne();
+        $conn->close();
+        $num = $result['num'];
+        if($num >= 20){
+            return '2';                                                                 //分享码超出上限
+        }
+
+        $code = $this->generateCode(8);
+        $exist = ShareCode::findOne(['code'=>$code]);
+        while($exist != null){
+            $code = $this->generateCode(8);
+            $exist = ShareCode::findOne(['code'=>$code]);
+        }
+        $shareCode = new ShareCode();
+        $shareCode->code_id = md5($recordId.date('Y-m-d H:i:s'));
+        $shareCode->code = $code;
+        $shareCode->user_id = $userId;
+        $shareCode->f_record_id = $recordId;
+        $shareCode->create_date = date('Y-m-d H:i:s');
+
+        if($shareCode->save()){
+            return $code;
+        }else{
+            return '3';                                                                 //创建失败
+        }
+
+    }
+
+    public function generateCode($length){
+        $chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()-_[]{}<>~+=';
+
+        $code = '';
+        for ( $i = 0; $i < $length; $i++ )
+        {
+            $code .= $chars[ mt_rand(0, strlen($chars) - 1) ];
+        }
+
+        return $code;
+    }
+
+    public function getUserShareFile($userId){
+        $conn = \Yii::$app->db;
+        $sql = 'select code_id,code,file_name,file_type,file_size,create_date from share_code,file_record
+                where share_code.f_record_id = file_record.f_record_id and share_code.user_id ="'.$userId.'" order by create_date';
+        $command = $conn->createCommand($sql);
+        $codes = $command->queryAll();
+        return $codes;
+    }
+
+    public function getFileByCode($code){
+        $shareCode =ShareCode::findOne(['code'=>$code]);
+        if($shareCode == null){
+            return '1';                                         //提取码不存在
+        }
+        $fileRecord = FileRecord::findOne(['f_record_id'=>$shareCode->f_record_id,'state'=>'0']);
+        if($fileRecord == null){
+            return '2';                                                 //文件已删除
+        }
+        return $fileRecord->file_id;
     }
 }

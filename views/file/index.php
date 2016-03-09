@@ -101,6 +101,11 @@
                                     <span class="span-file-name"><?= $file['file_name']?></span>
                                 </label>
                                 <div class="td-btns" style="display: none">
+                                    <a class="btn-share" record-id="<?=$file['f_record_id']?>"
+                                       url="<?=\yii\helpers\Url::base().'/index.php?r=file/share-file'?>"
+                                       csrf="<?=Yii::$app->request->csrfToken?>">
+                                        <span class="glyphicon glyphicon-cloud-upload"></span>
+                                    </a>&nbsp;
                                     <a class="btn-download" file-id="<?= $file['file_id'] ?>"
                                        url="<?= \yii\helpers\Url::base() . '/index.php?r=file/getfile'?>"
                                        csrf="<?= Yii::$app->request->csrfToken ?>">

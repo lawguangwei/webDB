@@ -22,6 +22,7 @@ $(function () {
     setAdminLoginLogs();
     setTableFile1();
     setTableFile2();
+    setTableFile3(0);
 
     $.ajax({
         type:'get',
@@ -444,6 +445,7 @@ function setTableFile1(){
                 $('#p-file-type').text($(this).parent().parent().find('.td-file-type').text());
                 $('#p-file-size').text($(this).parent().parent().find('.td-file-size').text());
             });
+            setTableFile3(0);
         }
     });
 }
@@ -482,6 +484,48 @@ function setTableFile2(){
                 $('#p-file-id').text($(this).parent().parent().find('.td-file-id').text())
                 $('#p-file-type').text($(this).parent().parent().find('.td-file-type').text());
                 $('#p-file-size').text($(this).parent().parent().find('.td-file-size').text());
+            });
+            setTableFile3(0);
+        }
+    });
+}
+
+function setTableFile3(page){
+    $.ajax({
+        type:'get',
+        url:'index.php?r=admin/disabled-files',
+        data:{'page':page},
+        dataType:'json',
+        success:function(data){
+            var i=1;
+            $('.tr-file-3').remove();
+            data['files'].forEach(function (item) {
+                var content = '<tr class="tr-file-3" info="'+item['fm_manage_info']+'">' +
+                    '<td>'+ i++ +'</td>' +
+                    '<td class="td-file-id">'+item['file_id']+'</td>' +
+                    '<td class="td-file-type">'+item['file_type']+'</td>' +
+                    '<td class="td-file-size">'+item['file_size']+'MB</td>' +
+                    '<td>'+item['admin']+'</td>' +
+                    '<td>'+item['create_date']+'</td>' +
+                    '</tr>';
+                $('#table-file-3').append(content);
+            })
+            $('#file-3-page').find('li').remove();
+            for(var i=0;i<data['pages'];i++){
+                if(i == data['page']){
+                    var content = '<li class="active"><a>'+(i+1)+'</a></li>';
+                }else{
+                    var content = '<li><a>'+(i+1)+'</a></li>';
+                }
+                $('#file-3-page').append(content);
+            }
+            $('.tr-file-3').off('dblclick');
+            $('.tr-file-3').on('dblclick',function(){
+                alert($(this).attr('info'));
+            });
+            $('#file-3-page').find('a').on('click',function(){
+                var page = $(this).text()-1;
+                setTableFile3(page);
             });
         }
     });

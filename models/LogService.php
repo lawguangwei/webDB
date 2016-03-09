@@ -6,6 +6,7 @@
  * Time: 14:20
  */
 namespace app\models;
+use Yii;
 
 class LogService{
     public function login($userId){
@@ -171,21 +172,47 @@ class LogService{
         $command = $conn->createCommand($sql);
         $data = $command->queryAll();
         for($i=0;$i<count($data);$i++){
-            $fm_log = FileManageLog::findOne(['file_id'=>$data[$i]['file_id']]);
-            if($fm_log == null){
-                $file = UserFile::findOne($data[$i]['file_id']);
-                $data[$i]['file_type'] = $file->filetype;
-                $data[$i]['file_size'] = round($file->filesize/(1024*1024),2);
-            }else{
-                unset($data[$i]);
-                array_merge($data);
-            }
+            $file = UserFile::findOne($data[$i]['file_id']);
+            $data[$i]['file_type'] = $file->filetype;
+            $data[$i]['file_size'] = round($file->filesize/(1024*1024),2);
         }
+        return $data;
+    }
+
+    public function disabledFiles($page){
+        $conn = Yii::$app->db;
+        $sql = 'select count(*) as counts from file_manage_log';
+        $command = $conn->createCommand($sql);
+        $result = $command->queryOne();
+        $pages = floor($result['counts']/20)+1;
+
+        $sql = 'select * from file_manage_log order by create_date desc limit '.($page*(20-1)).',20';
+        $command = $conn->createCommand($sql);
+        $files = $command->queryAll();
+        for($i=0;$i<count($files);$i++){
+            $file = UserFile::findOne($files[$i]['file_id']);
+            $files[$i]['file_type'] = $file->filetype;
+            $files[$i]['file_size'] = round($file->filesize/(1024*1024),2);
+            $admin = Admin::findOne(['admin_id'=>$files[$i]['admin_id']]);
+            $files[$i]['admin'] = $admin->admin_account;
+        }
+        $conn->close();
+        $data['pages'] = $pages;
+        $data['page'] = $page;
+        $data['files'] = $files;
         return $data;
     }
 
     public function logManageFile($fileId,$info){
         $tran = \Yii::$app->db->beginTransaction();
+
+        $records = FileRecord::findAll(['file_id'=>$fileId]);
+        $fileService = new FileService();
+        foreach($records as $record){
+            if($record->state == '0'){
+                $fileService->deleteFile($record->f_record_id,$record->user_id);
+            }
+        }
         $conn = \Yii::$app->db;
         $sql = 'update file_record set state="2" where file_id="'.$fileId.'"';
         $command = $conn->createCommand($sql);

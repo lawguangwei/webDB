@@ -50,6 +50,7 @@ use yii\helpers\Html;
                     <ul class="dropdown-menu">
                         <li><a href="<?=\yii\helpers\Url::base().'/index.php?r=user/person-info'?>">个人资料</a></li>
                         <li><a href="<?=\yii\helpers\Url::base().'/index.php?r=user/set-info'?>">设置</a></li>
+                        <li><a href="<?=\yii\helpers\Url::base().'/index.php?r=file/user-share-files'?>">分享文件</a></li>
                         <li role="separator" class="divider"></li>
                         <li><a href="<?=\yii\helpers\Url::base().'/index.php?r=user/logout'?>">退出登录</a></li>
                     </ul>

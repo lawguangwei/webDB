@@ -95,6 +95,11 @@ class AdminController extends Controller{
         return $this->render('login');
     }
 
+    public function actionLogout(){
+        unset($_SESSION['admin']);
+        return $this->redirect(Url::base().'/index.php?r=admin/index');
+    }
+
     public function actionSetBasicInfo(){
         $userService = new UserService();
         $fileService = new FileService();
@@ -190,6 +195,14 @@ class AdminController extends Controller{
         return json_encode($data);
     }
 
+    public function actionDisabledFiles(){
+        if(Yii::$app->request->isGet){
+            $logService = new LogService();
+            $data = $logService->disabledFiles($_GET['page']);
+            return json_encode($data);
+        }
+    }
+
     public function actionGetfile(){
         if(Yii::$app->request->isGet){
             $file_id = $_GET['file_id'];
@@ -233,7 +246,6 @@ class AdminController extends Controller{
                 $data['code'] = '1';
                 $data['msg'] = $msg;
             }
-
             return json_encode($data);
         }
     }

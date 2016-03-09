@@ -146,7 +146,8 @@ $(function(){
             '<td>' +
             '<label class="checkbox-inline"><input type="checkbox" value="'+file['f_record_id']+'">&nbsp;&nbsp;<span class="glyphicon glyphicon-file"></span>&nbsp;<span class="span-file-name">'+file['file_name']+'</span></label>' +
             '<div class="td-btns" style="display: none">' +
-            '<a class="btn-download" file-id="'+file['file_id']+'" url="index.php?r=file/getfile"><span class="glyphicon glyphicon-download-alt"></span></a>&nbsp ' +
+            '<a class="btn-share" record-id="'+file['f_record_id']+'" url="index.php?r=file/share-file"><span class="glyphicon glyphicon-cloud-upload"></span></a>&nbsp;' +
+            '<a class="btn-download" file-id="'+file['file_id']+'" url="index.php?r=file/getfile"><span class="glyphicon glyphicon-download-alt"></span></a>&nbsp;' +
             '<a class="btn-delete" record-id="'+file['f_record_id']+'" url="index.php?r=file/delete-file"><span class="glyphicon glyphicon-remove"></span></a>' +
             '</div>' +
             '</td>' +
@@ -190,6 +191,23 @@ $(function(){
                     $('#p-capacity').text(Math.round((disk['capacity']/(1024*1024*1024))*100)/100);
                     $('#p-available').text(Math.round((disk['available_size']/(1024*1024*1024))*100)/100);
                     node.remove();
+                }
+            });
+        });
+        $('.btn-share').on('click',function(){
+            var recordId = $(this).attr('record-id');
+            $.ajax({
+                url:'index.php?r=file/share-file',
+                type:'post',
+                data:{'record_id':recordId},
+                dataType:'json',
+                success:function(data){
+                    switch (data['code']){
+                        case '0' : alert('分享成功,分享码:'+data['msg']);break;
+                        case '1' : alert('分享码已存在');break;
+                        case '2' : alert('分享文件数量超出上限');break;
+                        case '3' : alert('分享码生成失败');break;
+                    }
                 }
             });
         });
@@ -283,7 +301,25 @@ $(function(){
                 node.remove();
             }
         });
-    })
+    });
+
+    $('.btn-share').click(function(){
+        var recordId = $(this).attr('record-id');
+        $.ajax({
+            url:'index.php?r=file/share-file',
+            type:'post',
+            data:{'record_id':recordId},
+            dataType:'json',
+            success:function(data){
+                switch (data['code']){
+                    case '0' : alert('分享成功,分享码:'+data['msg']);break;
+                    case '1' : alert('分享码已存在');break;
+                    case '2' : alert('分享文件数量超出上限');break;
+                    case '3' : alert('分享码生成失败');break;
+                }
+            }
+        });
+    });
 
     $(":checkbox").click(function(){
         var flag = false;
