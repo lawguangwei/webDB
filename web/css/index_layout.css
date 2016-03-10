@@ -190,3 +190,8 @@ a{
     padding-bottomdd: 2px;
     padding-top: 2px;
 }
+
+.navbar-brand{
+    padding-left: 25px;
+    padding-top: 5px;
+}

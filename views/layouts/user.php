@@ -32,18 +32,11 @@ use yii\helpers\Html;
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="#">&nbsp;WEB网盘</a>
+            <a class="navbar-brand" href="#"><img src="images/icon/logo.png" style="width: 40px; top:10px;"></a>
         </div>
 
         <!-- Collect the nav links, forms, and other content for toggling -->
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-            <form class="navbar-form navbar-left" role="search">
-                <div class="form-group">
-                    <input type="text" class="form-control" placeholder="搜索你的文件">
-                </div>
-                <button type="submit" class="btn btn-default">搜索</button>
-            </form>
-
             <ul class="nav navbar-nav navbar-right">
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><?=$_SESSION['user']['user_name']?> <span class="caret"></span></a>

@@ -15,11 +15,13 @@ LoginAsset::register($this);
 <div class="container-fluid">
     <?php
     if(isset($error)){ ?>
-        <div class="col-md-6 col-md-offset-3 alert alert-danger alert-dismissible fade in">
-            <a href="#" class="close" data-dismiss="alert">
-                &times;
-            </a>
-            <strong>警告！</strong><?=$error?>
+        <div class="row">
+            <div class="col-md-6 col-md-offset-3 alert alert-danger alert-dismissible fade in">
+                <a href="#" class="close" data-dismiss="alert">
+                    &times;
+                </a>
+                <strong>警告！</strong><?=$error?>
+            </div>
         </div>
     <?php }
     ?>

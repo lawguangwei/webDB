@@ -15,6 +15,7 @@ use yii\helpers\Html;
     <?php $this->head() ?>
 </head>
 <body>
+<div id="cloud"></div>
 <?php $this->beginBody() ?>
 <div id="logo">
     <div id="logo-web">WEB</div>

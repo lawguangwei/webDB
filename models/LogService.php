@@ -210,9 +210,10 @@ class LogService{
         $fileService = new FileService();
         foreach($records as $record){
             if($record->state == '0'){
-                $fileService->deleteFile($record->f_record_id,$record->user_id);
+                //$fileService->deleteFile($record->f_record_id,$record->user_id);
             }
         }
+
         $conn = \Yii::$app->db;
         $sql = 'update file_record set state="2" where file_id="'.$fileId.'"';
         $command = $conn->createCommand($sql);
@@ -220,6 +221,7 @@ class LogService{
             $tran->rollBack();
             return 'error';
         }
+
         $log = new FileManageLog();
         $log->fm_log_id = md5($fileId.$_SESSION['admin']['admin_id'].date('Y-m-d H:i:s'));
         $log->file_id = $fileId;

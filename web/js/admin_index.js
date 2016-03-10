@@ -220,7 +220,7 @@ function setStatistics2(data){
         var m = dt.getMonth();
         var d = dt.getUTCDate();
         var add_size = parseInt(data['add'][i]['size']);
-        //var add_size = Math.round((add_size/(1024*1024*1024))*100)/100;
+        add_size = Math.round((add_size/(1024*1024*1024))*100)/100;
         add.push([Date.UTC(y,m,d),add_size]);
     }
     for(var i=data['delete'].length-1;i>=0;i--){
@@ -229,7 +229,7 @@ function setStatistics2(data){
         var m = dt.getMonth();
         var d = dt.getUTCDate();
         var del_size = parseInt(data['delete'][i]['size']);
-        //var del_size = Math.round((del_size/(1024*1024*1024))*100)/100;
+        del_size = Math.round((del_size/(1024*1024*1024))*100)/100;
         del.push([Date.UTC(y,m,d),del_size]);
     }
 

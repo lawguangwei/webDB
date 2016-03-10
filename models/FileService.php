@@ -396,11 +396,11 @@ class FileService{
 
     public function adminStatisticsSize(){
         $conn = \Yii::$app->db;
-        $sql = 'select str_to_date(upload_date,"%Y-%m-%d") as date,sum(file_size) as size from file_record where state = "0" group by to_days(upload_date) order by upload_date desc limit 365';
+        $sql = 'select str_to_date(upload_date,"%Y-%m-%d") as date,sum(file_size) as size from file_record where state = "0" group by to_days(upload_date) order by upload_date desc limit 100';
         $command = $conn->createCommand($sql);
         $result = $command->queryAll();
         $data['add'] = $result;
-        $sql = 'select str_to_date(upload_date,"%Y-%m-%d") as date,sum(file_size) as size from file_record where state = "1" group by to_days(upload_date) order by upload_date desc limit 365';
+        $sql = 'select str_to_date(upload_date,"%Y-%m-%d") as date,sum(file_size) as size from file_record where state = "1" group by to_days(upload_date) order by upload_date desc limit 100';
         $command = $conn->createCommand($sql);
         $result = $command->queryAll();
         $data['delete'] = $result;

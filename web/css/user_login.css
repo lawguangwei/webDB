@@ -1,9 +1,13 @@
-body{
-    background: url("../images/cloud.jpg");
+#cloud{
+    background: url("../images/cloud.jpg") repeat-x scroll 0 0 transparent;
+    width: 100%;
+    height: 1000px;
+    position: absolute;
+    z-index: -1000;
+    top: -20px;
 }
-
 .div-form form{
-    background: #efefef;
+    background: #eeeeee;
 }
 
 #logo{
@@ -35,8 +39,9 @@ body{
 }
 
 #login-form{
-    border: 1px solid #e7e7e7;
+    border: 1px solid #ccc;
     padding-top: 20px;
+    border-radius: 10px;
 }
 
 #login-form:hover{

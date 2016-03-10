@@ -24,6 +24,7 @@ class LoginAsset extends AssetBundle
     public $js = [
         'js/jquery-2.2.0.min.js',
         'bootstrap/js/bootstrap.min.js',
+        'js/user_login.js'
     ];
     public $depends = [
     ];
